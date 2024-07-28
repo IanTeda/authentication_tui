@@ -2,10 +2,19 @@
 name = "authentication_tui"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0"
+repository = "https://github.com/IanTeda/authentication_tui"
+description = "A TUI application front end for the Authentication Mircorsevice"
+keywords = ["authentication", "tui", "ratatui", "tonic client"]
 
 [dependencies]
+cargo-make = "0.37.14"
 crossterm = { version = "0.27.0", features = ["event-stream"] }
 futures = "0.3.30"
+prost = "0.13"
 ratatui = "0.27.0"
 tokio = { version = "1.35.1", features = ["full"] }
-cargo-make = "0.37.14"
+tonic = { version = "0.12.0", features = ["prost"] }
+
+[build-dependencies]
+tonic-build = { version = "0.12", features = ["prost"] }

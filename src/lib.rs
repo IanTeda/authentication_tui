@@ -14,3 +14,6 @@ pub mod tui;
 
 /// Event handler.
 pub mod handler;
+
+/// Tonic Client RPC files
+pub mod rpc;
