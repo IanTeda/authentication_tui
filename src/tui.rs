@@ -1,22 +1,25 @@
 //-- ./src/tui.rs
 
-//! Initializes/exits the terminal interface
+//! Initialises/exits the terminal interface
 //! ---
 
 use crate::app::{App, AppResult};
 use crate::event::EventHandler;
 use crate::ui;
+use color_eyre::config::HookBuilder;
+use color_eyre::eyre;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use std::io;
 use std::panic;
+use tracing::instrument;
 
 /// Representation of a terminal user interface.
 ///
 /// It is responsible for setting up the terminal,
-/// initializing the interface and handling the draw events.
+/// initialising the interface and handling the draw events.
 #[derive(Debug)]
 pub struct Tui<B: Backend> {
     /// Interface to the Terminal.
@@ -31,7 +34,7 @@ impl<B: Backend> Tui<B> {
         Self { terminal, events }
     }
 
-    /// Initializes the terminal interface.
+    /// Initialises the terminal interface.
     ///
     /// It enables the raw mode and sets terminal properties.
     pub fn init(&mut self) -> AppResult<()> {
@@ -40,11 +43,24 @@ impl<B: Backend> Tui<B> {
 
         // Define a custom panic hook to reset the terminal properties.
         // This way, you won't have your terminal messed up if an unexpected error happens.
-        let panic_hook = panic::take_hook();
-        panic::set_hook(Box::new(move |panic| {
+        let (panic, error) = HookBuilder::default().into_hooks();
+        let panic = panic.into_panic_hook();
+        let error = error.into_eyre_hook();
+        eyre::set_hook(Box::new(move |e| {
             Self::reset().expect("failed to reset the terminal");
-            panic_hook(panic);
+            error(e)
+        }))?;
+
+        panic::set_hook(Box::new(move |info| {
+            Self::reset().expect("failed to reset the terminal");
+            panic(info);
         }));
+
+        // let panic_hook = panic::take_hook();
+        // panic::set_hook(Box::new(move |panic| {
+        //     Self::reset().expect("failed to reset the terminal");
+        //     panic_hook(panic);
+        // }));
 
         self.terminal.hide_cursor()?;
         self.terminal.clear()?;
@@ -64,6 +80,7 @@ impl<B: Backend> Tui<B> {
     ///
     /// This function is also used for the panic hook to revert
     /// the terminal properties if unexpected errors occur.
+    #[instrument]
     fn reset() -> AppResult<()> {
         terminal::disable_raw_mode()?;
         crossterm::execute!(
