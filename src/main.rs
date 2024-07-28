@@ -1,6 +1,6 @@
 //-- ./src/main.rs
 
-//! TUI entry poing
+//! TUI entry point
 //! ---
 
 use authentication_tui::app::{App, AppResult};
@@ -11,7 +11,8 @@ use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use std::io;
 
-fn main() -> AppResult<()> {
+#[tokio::main]
+async fn main() -> AppResult<()> {
     // Create an application.
     let mut app = App::new();
 
@@ -27,7 +28,7 @@ fn main() -> AppResult<()> {
         // Render the user interface.
         tui.draw(&mut app)?;
         // Handle events.
-        match tui.events.next()? {
+        match tui.events.next().await? {
             Event::Tick => app.tick(),
             Event::Key(key_event) => handle_key_events(key_event, &mut app)?,
             Event::Mouse(_) => {}

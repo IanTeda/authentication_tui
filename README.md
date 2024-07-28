@@ -1,8 +1,14 @@
 # Authentication TUI
 
-A TUI application front end for the [Authentication Mircorsevice](https://github.com/IanTeda/authentication_microservice)
+<!--toc:start-->
 
+- [Authentication TUI](#authentication-tui) - [References](#references)
+<!--toc:end-->
 
-#### References
+## About
 
-* [igrep - Interactive Grep](https://github.com/konradsz/igrep)
+A TUI application front end for the [Authentication Microservice](https://github.com/IanTeda/authentication_microservice)
+
+## References
+
+- [igrep - Interactive Grep](https://github.com/konradsz/igrep)
