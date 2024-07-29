@@ -4,6 +4,7 @@
         "centered",
         "crossterm",
         "ianteda",
+        "igrep",
         "LOGLEVEL",
         "lossy",
         "ratatui"
