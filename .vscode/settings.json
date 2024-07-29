@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
         "appender",
+        "centered",
         "crossterm",
         "ianteda",
+        "igrep",
         "LOGLEVEL",
         "lossy",
         "ratatui"
