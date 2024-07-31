@@ -26,8 +26,7 @@ impl Tracer {
     /// written in a non-blocking fashion to ensure that the logs do not block the main thread.
     pub fn init() -> AppResult<Self> {
         //TODO: Log to system folders
-        let file = fs::File::create("tracing.log")
-            .wrap_err("failed to create tracing.log")?;
+        let file = fs::File::create("tracing.log")?;
 
         let (non_blocking, guard) = tracing_appender::non_blocking(file);
 

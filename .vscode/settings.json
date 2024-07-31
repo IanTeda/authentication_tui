@@ -7,6 +7,11 @@
         "igrep",
         "LOGLEVEL",
         "lossy",
-        "ratatui"
+        "Prost",
+        "proto",
+        "protoc",
+        "protos",
+        "ratatui",
+        "thiserror"
     ]
 }

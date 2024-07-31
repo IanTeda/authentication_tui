@@ -17,8 +17,10 @@ async fn main() -> AppResult<()> {
     // Initiate tracing
     let _guard = Tracer::init()?;
 
+    // let _config = Config::parse()?;
+
     // Create a new application.
-    let mut app = App::new();
+    let mut app = App::new()?;
 
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());
