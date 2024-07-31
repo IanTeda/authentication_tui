@@ -43,24 +43,32 @@ impl<B: Backend> Tui<B> {
 
         // Define a custom panic hook to reset the terminal properties.
         // This way, you won't have your terminal messed up if an unexpected error happens.
-        let (panic, error) = HookBuilder::default().into_hooks();
+
+        // Build an Eyre panic hook
+        // https://github.com/eyre-rs/color-eyre
+        let (panic, error) = HookBuilder::default()
+            .panic_section(format!(
+                "This is a bug. Consider reporting it at {}",
+                env!("CARGO_PKG_REPOSITORY")
+            ))
+            // .capture_span_trace_by_default(false)
+            // .display_location_section(false)
+            // .display_env_section(false)
+            .into_hooks();
+
         let panic = panic.into_panic_hook();
+
         let error = error.into_eyre_hook();
-        eyre::set_hook(Box::new(move |e| {
-            Self::reset().expect("failed to reset the terminal");
-            error(e)
-        }))?;
 
         panic::set_hook(Box::new(move |info| {
             Self::reset().expect("failed to reset the terminal");
             panic(info);
         }));
 
-        // let panic_hook = panic::take_hook();
-        // panic::set_hook(Box::new(move |panic| {
-        //     Self::reset().expect("failed to reset the terminal");
-        //     panic_hook(panic);
-        // }));
+        eyre::set_hook(Box::new(move |e| {
+            Self::reset().expect("failed to reset the terminal");
+            error(e)
+        }))?;
 
         self.terminal.hide_cursor()?;
         self.terminal.clear()?;

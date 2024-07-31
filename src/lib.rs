@@ -3,6 +3,10 @@
 /// Application.
 pub mod app;
 
+/// Configuration file handler
+mod config;
+pub use config::Config;
+
 /// Terminal events handler.
 pub mod event;
 
@@ -16,10 +20,12 @@ pub mod tui;
 pub mod handler;
 
 /// Error handler
-// mod errors;
+mod error;
+pub use error::Error;
 
 /// Tonic Client RPC files
-pub mod rpc;
+mod rpc;
+pub use rpc::proto;
 
 // Application tracing
 mod tracing;
