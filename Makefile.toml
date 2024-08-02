@@ -31,4 +31,4 @@ dependencies = ["format", "build", "test"]
 [tasks.watch]
 install_crate = "cargo-watch"
 command = "cargo"
-args = ["watch", "--clear", "--quiet", "--exec", "run", "--watch", "src"]
+args = ["watch", "--clear", "--watch", "src", "--exec", "run"]

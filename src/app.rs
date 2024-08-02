@@ -3,14 +3,10 @@
 //! Holds the state and application logic
 //! ---
 
-// use std::error;
-
-use std::sync::Arc;
-
-use crate::{Error, Config};
+use std::error;
 
 /// Application result type.
-pub type AppResult<T> = std::result::Result<T, Error>;
+pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 /// Application.
 #[derive(Debug)]
@@ -18,30 +14,26 @@ pub struct App {
     /// Is the application running?
     pub running: bool,
 
-    pub config: Arc<Config>,
-
-    /// counter state
+    /// counter
     pub counter: u8,
+
+    pub backend_is_online: bool,
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            running: true,
+            counter: 0,
+            backend_is_online: false
+        }
+    }
 }
 
 impl App {
     /// Constructs a new instance of [`App`].
-    pub fn new() -> AppResult<Self> {
-        // Set app as running on new instance
-        let running = true;
-
-        let config = Config::parse()?;
-        let config = Arc::new(config);
-
-        let counter = 0;
-
-        let app = Self{ 
-            running,
-            config,
-            counter,
-        };
-
-        Ok(app)
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Handles the tick event of the terminal.

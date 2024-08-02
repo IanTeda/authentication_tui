@@ -2,14 +2,13 @@
 
 //! Handles the terminal events (key press, mouse click, resize, etc.)
 //! ---
-
 use std::time::Duration;
 
 use crossterm::event::{Event as CrosstermEvent, KeyEvent, MouseEvent};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
-use crate::{app::AppResult, Error};
+use crate::app::AppResult;
 
 /// Terminal events.
 #[derive(Clone, Copy, Debug)]
@@ -94,10 +93,9 @@ impl EventHandler {
         self.receiver
             .recv()
             .await
-            .ok_or(Error::Static("This is an IO Error"))
-            // .ok_or(Box::new(std::io::Error::new(
-            //     std::io::ErrorKind::Other,
-            //     "This is an IO error",
-            // )))
+            .ok_or(Box::new(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "This is an IO error",
+            )))
     }
 }

@@ -1,7 +1,12 @@
 //-- ./src/errors.rs
 
+// #![allow(unused)] // For development only
 
-/// Static errors types
+
+/// Application Error types to define response
+/// ---
+
+/// Application error enum
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     //-- Generic Errors

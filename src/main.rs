@@ -7,20 +7,14 @@ use authentication_tui::app::{App, AppResult};
 use authentication_tui::event::{Event, EventHandler};
 use authentication_tui::handler::handle_key_events;
 use authentication_tui::tui::Tui;
-use authentication_tui::Tracer;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use std::io;
 
 #[tokio::main]
 async fn main() -> AppResult<()> {
-    // Initiate tracing
-    let _guard = Tracer::init()?;
-
-    // let _config = Config::parse()?;
-
-    // Create a new application.
-    let mut app = App::new()?;
+    // Create an application.
+    let mut app = App::new();
 
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());
@@ -33,7 +27,6 @@ async fn main() -> AppResult<()> {
     while app.running {
         // Render the user interface.
         tui.draw(&mut app)?;
-
         // Handle events.
         match tui.events.next().await? {
             Event::Tick => app.tick(),
