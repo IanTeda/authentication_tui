@@ -1,12 +1,40 @@
 //-- ./src/app.rs
 
+#![allow(unused)] // For beginning only.
+
 //! Holds the state and application logic
 //! ---
 
-use std::error;
+use chrono::{DateTime, Utc};
 
-/// Application result type.
-pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
+use crate::TuiError;
+
+/// Application result type to keep errors consistent
+pub type AppResult<T> = std::result::Result<T, TuiError>;
+
+pub struct Tokens {
+    pub access_token: String,
+    pub refresh_token: String,
+    pub login_on: DateTime<Utc>,
+}
+
+#[derive(Debug)]
+pub struct Popup {
+    pub show: bool,
+    pub title: String,
+    pub message: String,
+}
+
+impl Default for Popup {
+    fn default() -> Self {
+        Self {
+            show: false,
+            title: String::from("Popup Title"),
+            message: String::from("Something important to tell you"),
+        }
+    }
+}
+
 
 /// Application.
 #[derive(Debug)]
@@ -18,6 +46,8 @@ pub struct App {
     pub counter: u8,
 
     pub backend_is_online: bool,
+
+    pub popup: Popup,
 }
 
 impl Default for App {
@@ -25,7 +55,8 @@ impl Default for App {
         Self {
             running: true,
             counter: 0,
-            backend_is_online: false
+            backend_is_online: false,
+            popup: Popup::default(),
         }
     }
 }

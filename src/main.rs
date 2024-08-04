@@ -3,7 +3,7 @@
 //! TUI entry point
 //! ---
 
-use authentication_tui::app::{App, AppResult};
+use authentication_tui::{App, AppResult};
 use authentication_tui::event::{Event, EventHandler};
 use authentication_tui::handler::handle_key_events;
 use authentication_tui::tui::Tui;
@@ -30,7 +30,7 @@ async fn main() -> AppResult<()> {
         // Handle events.
         match tui.events.next().await? {
             Event::Tick => app.tick(),
-            Event::Key(key_event) => handle_key_events(key_event, &mut app)?,
+            Event::Key(key_event) => handle_key_events(key_event, &mut app).await?,
             Event::Mouse(_) => {}
             Event::Resize(_, _) => {}
         }

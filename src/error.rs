@@ -8,7 +8,7 @@
 
 /// Application error enum
 #[derive(thiserror::Error, Debug)]
-pub enum Error {
+pub enum TuiError {
     //-- Generic Errors
     /// For starter, to remove as code matures.
     #[error("Generic error: {0}")]
@@ -32,5 +32,14 @@ pub enum Error {
 
     #[error(transparent)]   
     Toml(#[from] toml::ser::Error),
+
+    #[error(transparent)]
+    Uri(#[from] http::uri::InvalidUri),
+
+    #[error(transparent)]
+    TonicTransport(#[from] tonic::transport::Error),
+
+    #[error(transparent)]
+    TonicStatus(#[from] tonic::Status),
 
 }
