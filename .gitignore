@@ -5,6 +5,7 @@
 !.devcontainer
 !.vscode
 !.sqlx
+!.gitmodules
 
 # By default, Ignore any _*, except for:
 _*

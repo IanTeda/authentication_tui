@@ -9,7 +9,6 @@
 
 use std::fs;
 
-use color_eyre::eyre::WrapErr;
 use tracing_appender::non_blocking::WorkerGuard;
 
 use crate::app::AppResult;

@@ -1,0 +1,54 @@
+# This docker-compose file builds the authentication backend (server) to test
+# the TUI against
+---
+volumes:
+  tui_backend:
+    
+networks:
+  default:
+    name: tui_backend
+    driver: bridge
+
+services:
+   # https://hub.docker.com/_/postgres/tags
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-latest}
+    container_name: tui_backend_postgres
+    restart: unless-stopped
+    # Port does not need to be mapped, consider commenting out when running
+    # ports:
+    #   - 5433:5432
+    volumes:
+      - tui_backend:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=authentication
+      - POSTGRES_PASSWORD=authentication
+      - POSTGRES_DB=authentication
+      - POSTGRES_HOSTNAME=postgres
+    healthcheck:
+      test: pg_isready -U authentication -h 127.0.0.1 # -U "POSTGRES_USER" needs to be match environment setting
+      interval: 5s
+
+  # https://hub.docker.com/_/postgres/tags
+  adminer:
+    image: adminer:${ADMINER_VERSION:-latest}
+    container_name: tui_backend_adminer
+    restart: unless-stopped
+    ports:
+      - 8089:8080
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres:5432
+      - ADMINER_DESIGN=galkaev
+    depends_on:
+      - postgres
+
+  authentication:
+    image: ghcr.io/ianteda/authentication:${AUTHENICATION_VERSION:-latest}
+    container_name: tui_backend_authentication
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    # environment:
+    #   BACKEND__APPLICATION_PORT: 8025 # Not working
+    depends_on:
+      - postgres

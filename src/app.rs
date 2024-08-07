@@ -1,51 +1,61 @@
 //-- ./src/app.rs
 
+// #![allow(unused)] // For beginning only.
+
 //! Holds the state and application logic
 //! ---
 
-// use std::error;
 
-use std::sync::Arc;
+use crate::{state, Config, TuiError};
 
-use crate::{Error, Config};
-
-/// Application result type.
-pub type AppResult<T> = std::result::Result<T, Error>;
+/// Application result type to keep errors consistent
+pub type AppResult<T> = std::result::Result<T, TuiError>;
 
 /// Application.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct App {
-    /// Is the application running?
+    /// Application running state
     pub running: bool,
 
-    pub config: Arc<Config>,
+    /// Application configuration state
+    pub config: Config,
 
-    /// counter state
+    /// Backend state
+    pub backend: state::Backend,
+
+    /// counter
     pub counter: u8,
+
+    /// Popup state
+    pub popup: state::Popup,
+
+    /// Toast message state
+    pub toast: state::Toast,
 }
 
 impl App {
     /// Constructs a new instance of [`App`].
-    pub fn new() -> AppResult<Self> {
-        // Set app as running on new instance
+    pub fn new(config: Config) -> Self {
         let running = true;
-
-        let config = Config::parse()?;
-        let config = Arc::new(config);
-
+        let backend = state::Backend::default();
         let counter = 0;
+        let popup = state::Popup::default();
+        let toast = state::Toast::default();
 
-        let app = Self{ 
+        Self {
             running,
             config,
+            backend,
             counter,
-        };
-
-        Ok(app)
+            popup,
+            toast,
+        }
     }
 
     /// Handles the tick event of the terminal.
-    pub fn tick(&self) {}
+    pub fn tick(&mut self) {
+        self.toast.show = true;
+    }
 
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {

@@ -23,3 +23,4 @@ git submodule update --init --recursive
 ## References
 
 - [igrep - Interactive Grep](https://github.com/konradsz/igrep)
+- [Rex](https://github.com/TheRustyPickle/Rex/tree/main)

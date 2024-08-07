@@ -2,24 +2,29 @@
 
 //! Handles the terminal events (key press, mouse click, resize, etc.)
 //! ---
-
 use std::time::Duration;
 
 use crossterm::event::{Event as CrosstermEvent, KeyEvent, MouseEvent};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
-use crate::{app::AppResult, Error};
+use crate::{AppResult, TuiError};
 
 /// Terminal events.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Event {
     /// Terminal tick.
     Tick,
+
+    /// Paste
+    Paste(String),
+
     /// Key press.
     Key(KeyEvent),
+
     /// Mouse click/scroll.
     Mouse(MouseEvent),
+
     /// Terminal resize.
     Resize(u16, u16),
 }
@@ -94,7 +99,7 @@ impl EventHandler {
         self.receiver
             .recv()
             .await
-            .ok_or(Error::Static("This is an IO Error"))
+            .ok_or(TuiError::Static("IO Error"))
             // .ok_or(Box::new(std::io::Error::new(
             //     std::io::ErrorKind::Other,
             //     "This is an IO error",

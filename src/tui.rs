@@ -3,18 +3,15 @@
 //! Initialises/exits the terminal interface
 //! ---
 
-use crate::app::{App, AppResult};
+use crate::{App, AppResult};
 use crate::event::EventHandler;
 use crate::ui;
-use color_eyre::config::HookBuilder;
-use color_eyre::eyre;
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::Backend;
 use ratatui::Terminal;
 use std::io;
 use std::panic;
-use tracing::instrument;
 
 /// Representation of a terminal user interface.
 ///
@@ -43,32 +40,11 @@ impl<B: Backend> Tui<B> {
 
         // Define a custom panic hook to reset the terminal properties.
         // This way, you won't have your terminal messed up if an unexpected error happens.
-
-        // Build an Eyre panic hook
-        // https://github.com/eyre-rs/color-eyre
-        let (panic, error) = HookBuilder::default()
-            .panic_section(format!(
-                "This is a bug. Consider reporting it at {}",
-                env!("CARGO_PKG_REPOSITORY")
-            ))
-            // .capture_span_trace_by_default(false)
-            // .display_location_section(false)
-            // .display_env_section(false)
-            .into_hooks();
-
-        let panic = panic.into_panic_hook();
-
-        let error = error.into_eyre_hook();
-
-        panic::set_hook(Box::new(move |info| {
+        let panic_hook = panic::take_hook();
+        panic::set_hook(Box::new(move |panic| {
             Self::reset().expect("failed to reset the terminal");
-            panic(info);
+            panic_hook(panic);
         }));
-
-        eyre::set_hook(Box::new(move |e| {
-            Self::reset().expect("failed to reset the terminal");
-            error(e)
-        }))?;
 
         self.terminal.hide_cursor()?;
         self.terminal.clear()?;
@@ -88,14 +64,9 @@ impl<B: Backend> Tui<B> {
     ///
     /// This function is also used for the panic hook to revert
     /// the terminal properties if unexpected errors occur.
-    #[instrument]
     fn reset() -> AppResult<()> {
         terminal::disable_raw_mode()?;
-        crossterm::execute!(
-            io::stderr(),
-            LeaveAlternateScreen,
-            DisableMouseCapture
-        )?;
+        crossterm::execute!(io::stderr(), LeaveAlternateScreen, DisableMouseCapture)?;
         Ok(())
     }
 

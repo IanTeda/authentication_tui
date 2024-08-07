@@ -1,32 +1,33 @@
 //-- ./src/lib.rs
 
 /// Application.
-pub mod app;
+mod app;
+pub use app::App;
+pub use app::AppResult;
 
-/// Configuration file handler
+/// Configuration file parsing
 mod config;
 pub use config::Config;
 
+
+/// Tui Error enums
+mod error;
+pub use error::TuiError;
+
 /// Terminal events handler.
 pub mod event;
+
+/// Event handler.
+pub mod handler;
+
+mod proto;
+pub use proto::rpc;
+pub use proto::RpcClient;
+
+mod state;
 
 /// Widget renderer.
 pub mod ui;
 
 /// Terminal user interface.
 pub mod tui;
-
-/// Event handler.
-pub mod handler;
-
-/// Error handler
-mod error;
-pub use error::Error;
-
-/// Tonic Client RPC files
-mod rpc;
-pub use rpc::proto;
-
-// Application tracing
-mod tracing;
-pub use tracing::Tracer;

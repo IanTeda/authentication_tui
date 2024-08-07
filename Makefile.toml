@@ -14,6 +14,10 @@ args = ["fmt", "--", "--emit=files"]
 command = "cargo"
 args = ["clean"]
 
+[tasks.clear_config]
+command = "rm"
+args = ["/home/ian/.config/authentication_tui/config.toml"]
+
 [tasks.build]
 command = "cargo"
 args = ["build"]
@@ -31,4 +35,10 @@ dependencies = ["format", "build", "test"]
 [tasks.watch]
 install_crate = "cargo-watch"
 command = "cargo"
-args = ["watch", "--clear", "--quiet", "--exec", "run", "--watch", "src"]
+args = ["watch", "--clear", "--watch", "src", "--exec", "run"]
+
+# Update Git Submodules
+# git submodule update --init --recursive
+[tasks.git_update]
+command = "git"
+args = ["submodule", "update", "--remote", "--merge"]
