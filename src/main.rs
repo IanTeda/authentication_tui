@@ -3,7 +3,7 @@
 //! TUI entry point
 //! ---
 
-use authentication_tui::{App, AppResult};
+use authentication_tui::{App, AppResult, Config};
 use authentication_tui::event::{Event, EventHandler};
 use authentication_tui::handler::handle_key_events;
 use authentication_tui::tui::Tui;
@@ -13,8 +13,12 @@ use std::io;
 
 #[tokio::main]
 async fn main() -> AppResult<()> {
+    // Parse application configuration file
+    let config = Config::parse()?;
+
     // Create an application.
-    let mut app = App::new();
+    let mut app = App::new(config);
+    // let mut app = App::new();
 
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());
@@ -32,6 +36,7 @@ async fn main() -> AppResult<()> {
             Event::Tick => app.tick(),
             Event::Key(key_event) => handle_key_events(key_event, &mut app).await?,
             Event::Mouse(_) => {}
+            Event::Paste(_) => {}
             Event::Resize(_, _) => {}
         }
     }

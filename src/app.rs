@@ -7,7 +7,7 @@
 
 use chrono::{DateTime, Utc};
 
-use crate::TuiError;
+use crate::{Config, TuiError};
 
 /// Application result type to keep errors consistent
 pub type AppResult<T> = std::result::Result<T, TuiError>;
@@ -42,6 +42,9 @@ pub struct App {
     /// Is the application running?
     pub running: bool,
 
+    /// Application configuration
+    pub config: Config,
+
     /// counter
     pub counter: u8,
 
@@ -50,21 +53,32 @@ pub struct App {
     pub popup: Popup,
 }
 
-impl Default for App {
-    fn default() -> Self {
-        Self {
-            running: true,
-            counter: 0,
-            backend_is_online: false,
-            popup: Popup::default(),
-        }
-    }
-}
+// impl Default for App {
+//     fn default() -> Self {
+//         Self {
+//             running: true,
+//             counter: 0,
+//             backend_is_online: false,
+//             popup: Popup::default(),
+//         }
+//     }
+// }
 
 impl App {
     /// Constructs a new instance of [`App`].
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(config: Config) -> Self {
+        let running = true;
+        let counter = 0;
+        let popup = Popup::default();
+        let backend_is_online= false;
+
+        Self {
+            running,
+            config,
+            counter,
+            backend_is_online,
+            popup,
+        }
     }
 
     /// Handles the tick event of the terminal.

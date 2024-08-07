@@ -10,7 +10,7 @@
 
 use std::{fs, net, path};
 
-use crate::{app::AppResult, Error};
+use crate::{app::AppResult, TuiError};
 
 /// Tui application configuration
 ///
@@ -19,7 +19,7 @@ use crate::{app::AppResult, Error};
 /// * [crates-tui/src/config.rs](https://github.com/ratatui-org/crates-tui/blob/main/src/config.rs)
 /// ---
 #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
-struct Tui {
+pub struct Tui {
     /// The directory to use for storing application configuration ( etc.).
     pub config_folder: path::PathBuf,
 
@@ -75,15 +75,15 @@ impl Default for Tui {
 }
 
 #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
-struct Backend {
+pub struct Backend {
     /// IP address of the backend server
-    ip: net::IpAddr,
+    pub ip: net::IpAddr,
 
     /// Port used by the backend server endpoints
-    port: u16,
+    pub port: u16,
 
     /// Optional default email address
-    default_email: Option<String>,
+    pub default_email: Option<String>,
 }
 
 impl Default for Backend {
@@ -103,18 +103,18 @@ impl Default for Backend {
 #[derive(Debug, Clone, PartialEq, Default, serde::Deserialize, serde::Serialize)]
 pub struct Config {
     /// Configure the Tui application
-    tui: Tui,
+    pub tui: Tui,
 
     /// Backend configuration
-    backend: Backend,
+    pub backend: Backend,
 }
 
 impl Config {
     pub fn parse() -> AppResult<Self> {
         // Build config directory path
         let config_directory =
-            directories::ProjectDirs::from("com", "ianteda", "authentication")
-                .ok_or(Error::Static(
+            directories::ProjectDirs::from("com", "ianteda", "authentication_tui")
+                .ok_or(TuiError::Static(
                     "Failed to determine application configuration directory",
                 ))?
                 .config_dir()
@@ -130,7 +130,7 @@ impl Config {
                 config_file.display()
             );
 
-            write_default_config(&config_file)?;
+            write_default_config(&config_directory, &config_file)?;
         };
 
         // Build config by first adding config.toml and overwriting with
@@ -143,14 +143,12 @@ impl Config {
             // and '_' as separator). E.g. `AUTHENTICATION_APPLICATION_PORT=5001 would
             // set `settings.application.port`
             .add_source(
-                config::Environment::with_prefix("AUTHENTICATION")
+                config::Environment::with_prefix("AUTHENTICATION_TUI")
                     .prefix_separator("_")
                     .separator("_"),
             )
             .build()?
             .try_deserialize()?;
-
-        // let config: crate::Config = config_builder.try_deserialize()?;
 
         Ok(config)
     }
@@ -162,9 +160,12 @@ impl Config {
 /// 
 /// * `config_file` - The PathPuf of the config file location to write to
 /// ---
-fn write_default_config(config_file: &path::PathBuf) -> AppResult<()> {
+fn write_default_config(config_directory: &path::PathBuf, config_file: &path::PathBuf) -> AppResult<()> {
     // Initiate default config
     let default_config = Config::default();
+
+    // Recursively create a directory and all of its parent components if they are missing.
+    fs::create_dir_all(config_directory)?;
 
     // Write default struct to file
     fs::write(config_file, toml::to_string(&default_config)?)?;
@@ -192,17 +193,18 @@ mod tests {
     #[test]
     fn confirm_default_config_file() -> Result<()> {
         //-- Setup and Fixtures (Arrange)
-        let config_file = path::PathBuf::from("/tmp/test_config_file.toml");
+        let config_directory = path::PathBuf::from("/tmp/authentication_tui_test");
+        let config_file = path::PathBuf::from("/tmp/authentication_tui_test/test_config_file.toml");
 
         // Clean up previous test file if required
         if config_file.exists() {
-            fs::remove_file(&config_file)?;
+            fs::remove_dir_all(&config_directory)?;
         };
 
         let default_config = Config::default();
 
         //-- Execute Function (Act)
-        write_default_config(&config_file)?;
+        write_default_config(&config_directory, &config_file)?;
 
         //-- Checks (Assertions)
         let config: Config = config::Config::builder()
@@ -215,7 +217,7 @@ mod tests {
 
         // Clean up test file
         if config_file.exists() {
-            fs::remove_file(&config_file)?;
+            fs::remove_dir_all(&config_directory)?;
         };
 
         //-- Return

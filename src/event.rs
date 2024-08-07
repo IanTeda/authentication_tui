@@ -11,14 +11,20 @@ use tokio::sync::mpsc;
 use crate::{AppResult, TuiError};
 
 /// Terminal events.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Event {
     /// Terminal tick.
     Tick,
+
+    /// Paste
+    Paste(String),
+
     /// Key press.
     Key(KeyEvent),
+
     /// Mouse click/scroll.
     Mouse(MouseEvent),
+
     /// Terminal resize.
     Resize(u16, u16),
 }

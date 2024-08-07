@@ -36,11 +36,9 @@ impl RpcClient {
         // Build Tonic Client channel
         let uri: tonic::transport::Uri = address.parse()?;
         let endpoint = transport::Channel::builder(uri);
-        let inner: transport::Channel = endpoint.connect().await?;
+        let channel: transport::Channel = endpoint.connect().await?;
 
-        let utilities = UtilitiesClient::new(inner.clone());
-
-        // let utilities = UtilitiesClient::connect("http://127.0.0.1:8082").await?;
+        let utilities = UtilitiesClient::new(channel.clone());
 
         let client = RpcClient { utilities };
 

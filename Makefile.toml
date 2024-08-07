@@ -14,6 +14,10 @@ args = ["fmt", "--", "--emit=files"]
 command = "cargo"
 args = ["clean"]
 
+[tasks.clean_config]
+command = "rm"
+args = ["~/.config/authentication/config.toml "]
+
 [tasks.build]
 command = "cargo"
 args = ["build"]
@@ -32,3 +36,9 @@ dependencies = ["format", "build", "test"]
 install_crate = "cargo-watch"
 command = "cargo"
 args = ["watch", "--clear", "--watch", "src", "--exec", "run"]
+
+# Update Git Submodules
+# git submodule update --init --recursive
+[tasks.git_update]
+command = "git"
+args = ["submodule", "update", "--remote", "--merge"]

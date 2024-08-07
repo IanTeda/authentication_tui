@@ -5,12 +5,17 @@ mod app;
 pub use app::App;
 pub use app::AppResult;
 
-/// Terminal events handler.
-pub mod event;
+/// Configuration file parsing
+mod config;
+pub use config::Config;
+
 
 /// Tui Error enums
 mod error;
 pub use error::TuiError;
+
+/// Terminal events handler.
+pub mod event;
 
 /// Event handler.
 pub mod handler;

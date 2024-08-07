@@ -18,11 +18,20 @@ pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<
                 app.quit();
             }
         }
+        KeyCode::Char('p') => {
+            panic!("Intentional panic");
+        }
         //
         KeyCode::Char('r') | KeyCode::Char('R') => {
             if key_event.modifiers == KeyModifiers::CONTROL {
 
-                let address = "http://127.0.0.1:8091".to_string();
+                // let address = "http://127.0.0.1:8091".to_string();
+
+                let address = format!(
+                "http://{}:{}",
+                    app.config.backend.ip,
+                    app.config.backend.port,
+                  );
 
                 let mut rpc_client = crate::RpcClient::new(address).await?;
                 let request_message = tonic::Request::new( rpc::Empty {});
