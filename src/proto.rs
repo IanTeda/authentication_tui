@@ -1,6 +1,6 @@
 //-- ./src/proto.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Modules for access the backend RPC server
 

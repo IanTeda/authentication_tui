@@ -14,9 +14,9 @@ args = ["fmt", "--", "--emit=files"]
 command = "cargo"
 args = ["clean"]
 
-[tasks.clean_config]
+[tasks.clear_config]
 command = "rm"
-args = ["~/.config/authentication/config.toml "]
+args = ["/home/ian/.config/authentication_tui/config.toml"]
 
 [tasks.build]
 command = "cargo"

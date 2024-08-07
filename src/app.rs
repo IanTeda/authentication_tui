@@ -1,88 +1,61 @@
 //-- ./src/app.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Holds the state and application logic
 //! ---
 
-use chrono::{DateTime, Utc};
 
-use crate::{Config, TuiError};
+use crate::{state, Config, TuiError};
 
 /// Application result type to keep errors consistent
 pub type AppResult<T> = std::result::Result<T, TuiError>;
 
-pub struct Tokens {
-    pub access_token: String,
-    pub refresh_token: String,
-    pub login_on: DateTime<Utc>,
-}
-
-#[derive(Debug)]
-pub struct Popup {
-    pub show: bool,
-    pub title: String,
-    pub message: String,
-}
-
-impl Default for Popup {
-    fn default() -> Self {
-        Self {
-            show: false,
-            title: String::from("Popup Title"),
-            message: String::from("Something important to tell you"),
-        }
-    }
-}
-
-
 /// Application.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct App {
-    /// Is the application running?
+    /// Application running state
     pub running: bool,
 
-    /// Application configuration
+    /// Application configuration state
     pub config: Config,
+
+    /// Backend state
+    pub backend: state::Backend,
 
     /// counter
     pub counter: u8,
 
-    pub backend_is_online: bool,
+    /// Popup state
+    pub popup: state::Popup,
 
-    pub popup: Popup,
+    /// Toast message state
+    pub toast: state::Toast,
 }
-
-// impl Default for App {
-//     fn default() -> Self {
-//         Self {
-//             running: true,
-//             counter: 0,
-//             backend_is_online: false,
-//             popup: Popup::default(),
-//         }
-//     }
-// }
 
 impl App {
     /// Constructs a new instance of [`App`].
     pub fn new(config: Config) -> Self {
         let running = true;
+        let backend = state::Backend::default();
         let counter = 0;
-        let popup = Popup::default();
-        let backend_is_online= false;
+        let popup = state::Popup::default();
+        let toast = state::Toast::default();
 
         Self {
             running,
             config,
+            backend,
             counter,
-            backend_is_online,
             popup,
+            toast,
         }
     }
 
     /// Handles the tick event of the terminal.
-    pub fn tick(&self) {}
+    pub fn tick(&mut self) {
+        self.toast.show = true;
+    }
 
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {

@@ -24,6 +24,8 @@ mod proto;
 pub use proto::rpc;
 pub use proto::RpcClient;
 
+mod state;
+
 /// Widget renderer.
 pub mod ui;
 

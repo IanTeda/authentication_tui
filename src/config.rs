@@ -10,7 +10,7 @@
 
 use std::{fs, net, path};
 
-use crate::{app::AppResult, TuiError};
+use crate::{AppResult, TuiError};
 
 /// Tui application configuration
 ///
@@ -28,11 +28,8 @@ pub struct Tui {
 
     /// The file used to store the application configuration
     pub config_file: path::PathBuf,
-    // The log level the application is running on [error, warn, info, debug, trace]
-    // #[serde_as(as = "NoneAsEmptyString")]
-    // pub log_level: tracing::level_filters::LevelFilter,
 
-    // pub tick_rate: f64,
+    pub tick_rate: u64,
 
     // pub frame_rate: f64,
 
@@ -50,7 +47,7 @@ pub struct Tui {
 }
 
 impl Default for Tui {
-    /// Default initiation of the Tui config struct
+    /// Default settings used to write to file if config file not found
     fn default() -> Self {
         let project_directory =
             directories::ProjectDirs::from("com", "ianteda", "authentication");
@@ -66,10 +63,13 @@ impl Default for Tui {
 
         let config_file = config_folder.join("config.toml");
 
+        let tick_rate: u64 = 250;
+
         Self {
             config_folder,
             data_folder,
             config_file,
+            tick_rate,
         }
     }
 }

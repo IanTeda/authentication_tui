@@ -15,7 +15,7 @@ use ratatui::{
 };
 use tracing_subscriber::fmt::format;
 
-use crate::app::App;
+use crate::App;
 
 /// Renders the user interface widgets.
 pub fn render(app: &mut App, frame: &mut Frame) {
@@ -42,7 +42,7 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     );
 
     frame.render_widget(
-        Paragraph::new(format!("Server Online: {}", app.backend_is_online))
+        Paragraph::new(format!("Server Online: {}", app.backend.is_online))
             .block(Block::new().borders(Borders::ALL)),
         footer[1],
     );
