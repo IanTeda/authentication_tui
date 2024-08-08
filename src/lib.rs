@@ -31,3 +31,5 @@ pub mod ui;
 
 /// Terminal user interface.
 pub mod tui;
+
+pub mod custom_widgets;

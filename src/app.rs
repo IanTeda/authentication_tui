@@ -1,6 +1,6 @@
 //-- ./src/app.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! Holds the state and application logic
 //! ---
@@ -11,11 +11,29 @@ use crate::{state, Config, TuiError};
 /// Application result type to keep errors consistent
 pub type AppResult<T> = std::result::Result<T, TuiError>;
 
+/// The modes the TUI app can be in
+#[derive(Debug, Clone, PartialEq)]
+pub enum AppMode {
+    /// View, navigate
+    Normal,
+    /// Edit an entry
+    Edit,
+    /// Confirmation popup
+    Confirm,
+    /// Popup 
+    Popup,
+    /// Toast notification, might not need this one
+    Toast
+}
+
 /// Application.
 #[derive(Debug, Clone, PartialEq)]
 pub struct App {
     /// Application running state
     pub running: bool,
+
+    /// Application is mode
+    pub mode: AppMode,
 
     /// Application configuration state
     pub config: Config,
@@ -37,6 +55,7 @@ impl App {
     /// Constructs a new instance of [`App`].
     pub fn new(config: Config) -> Self {
         let running = true;
+        let mode = AppMode::Normal;
         let backend = state::Backend::default();
         let counter = 0;
         let popup = state::Popup::default();
@@ -44,6 +63,7 @@ impl App {
 
         Self {
             running,
+            mode,
             config,
             backend,
             counter,
@@ -54,7 +74,7 @@ impl App {
 
     /// Handles the tick event of the terminal.
     pub fn tick(&mut self) {
-        self.toast.show = true;
+        // self.popup.show = true;
     }
 
     /// Set running to false to quit the application.

@@ -1,5 +1,7 @@
 //-- ./src/app/popup.rs
 
+// #![allow(unused)] // For beginning only.
+
 //! Application model for the Popup state
 //! ---
 

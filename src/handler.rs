@@ -9,7 +9,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
     match key_event.code {
         // Exit application on `ESC` or `q`
-        KeyCode::Esc | KeyCode::Char('q') => {
+        KeyCode::Char('q') => {
             app.quit();
         }
         // Exit application on `Ctrl-C`
@@ -20,6 +20,9 @@ pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<
         }
         KeyCode::Char('p') => {
             panic!("Intentional panic");
+        }
+        KeyCode::Char('t') => {
+            app.toast.show = !app.toast.show;
         }
         //
         KeyCode::Char('r') | KeyCode::Char('R') => {
@@ -41,6 +44,14 @@ pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<
                 app.popup.message = format!("Message: {:?}", _response_metadata.clone());
                 app.popup.show = !app.popup.show;
                 app.backend.is_online = true;
+            }
+        }
+        KeyCode::Esc => {
+            if app.popup.show {
+                app.popup.show = !app.popup.show;
+            };
+            if app.toast.show {
+                app.toast.show = !app.toast.show;
             }
         }
         // Counter handlers

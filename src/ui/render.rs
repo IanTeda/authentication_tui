@@ -13,9 +13,10 @@ use ratatui::{
     widgets::{self, Block, Borders, Paragraph},
     Frame,
 };
+
 use tracing_subscriber::fmt::format;
 
-use crate::App;
+use crate::{custom_widgets, App};
 
 /// Renders the user interface widgets.
 pub fn render(app: &mut App, frame: &mut Frame) {
@@ -55,6 +56,10 @@ pub fn render(app: &mut App, frame: &mut Frame) {
             Paragraph::new(app.popup.message.clone());
         let widget = paragraph.block(block).wrap(widgets::Wrap { trim: true });
         frame.render_widget(widget, area);
+    }
+
+    if app.toast.show {
+        frame.render_stateful_widget(custom_widgets::Toast {}, area, &mut app.toast);
     }
 }
 
