@@ -14,3 +14,4 @@ pub use popup::Popup;
 /// Application toast state
 mod toast;
 pub use toast::Toast;
+pub use toast::ToastKinds;

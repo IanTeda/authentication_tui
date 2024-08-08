@@ -23,9 +23,6 @@ pub struct Toast {
     /// When true UI will draw next refresh
     pub show: bool,
 
-    /// Title of the popup
-    pub title: String,
-
     /// Message of the popup
     pub message: String,
 
@@ -37,14 +34,12 @@ impl Default for Toast {
     fn default() -> Self {
         let kind = ToastKinds::Notification;
         let show = false;
-        let title = String::from("Notification");
-        let message = String::from("Something just happened");
+        let message = String::from("Something just happened that goes over one line to two..");
         let auto_hide = false;
 
         Self {
             kind,
             show,
-            title,
             message,
             auto_hide,
         }
@@ -69,7 +64,6 @@ mod tests {
 
         assert_eq!(default_toast.kind, ToastKinds::Notification);
         assert!(!default_toast.show);
-        assert_eq!(default_toast.title, String::from("Notification"));
         assert_eq!(default_toast.message, String::from("Something just happened"));
         assert!(!default_toast.auto_hide);
 

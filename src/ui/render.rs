@@ -50,7 +50,7 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 
     if app.popup.show {
         let block = Block::bordered().title(app.popup.title.clone());
-        let area = centered_rect(60, 20, area);
+        let area = custom_widgets::helpers::centered_rect(60, 20, area);
         frame.render_widget(widgets::Clear, area); //this clears out the background
         let paragraph =
             Paragraph::new(app.popup.message.clone());
@@ -61,21 +61,4 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     if app.toast.show {
         frame.render_stateful_widget(custom_widgets::Toast {}, area, &mut app.toast);
     }
-}
-
-/// helper function to create a centered rect using up certain percentage of the available rect `r`
-fn centered_rect(percent_x: u16, percent_y: u16, r: layout::Rect) -> layout::Rect {
-    let popup_layout = Layout::vertical([
-        Constraint::Percentage((100 - percent_y) / 2),
-        Constraint::Percentage(percent_y),
-        Constraint::Percentage((100 - percent_y) / 2),
-    ])
-    .split(r);
-
-    Layout::horizontal([
-        Constraint::Percentage((100 - percent_x) / 2),
-        Constraint::Percentage(percent_x),
-        Constraint::Percentage((100 - percent_x) / 2),
-    ])
-    .split(popup_layout[1])[1]
 }

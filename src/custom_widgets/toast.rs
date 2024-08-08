@@ -1,6 +1,6 @@
 //-- ./src/widgets/toast.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! A widget for displaying notifications
 //!
@@ -9,13 +9,17 @@
 //! * https://github.com/kaixinbaba/hg-tui/blob/main/src/widget/popup.rs
 //! ---
 
+// use ratatui::prelude::*;
+
 use ratatui::{
     buffer::Buffer,
-    layout,
+    layout, style, text,
     widgets::{self, Widget},
 };
 
 use crate::state;
+
+use super::helpers;
 
 // TODO: what goes into this struct and should we new() it?
 #[derive(Debug, Clone, PartialEq)]
@@ -27,37 +31,62 @@ impl widgets::StatefulWidget for Toast {
     /// Render the Toast
     fn render(self, area: layout::Rect, buf: &mut Buffer, state: &mut Self::State) {
         // Calculate widget layout area / position
-        let widget_area = top_right(40, 5, area);
+        let widget_area = helpers::top_right(40, 4, area);
 
         // Clear/reset a certain area to allow overdrawing of toast.
         widgets::Clear.render(widget_area, buf);
 
-        let toast_title = state.title.clone();
+        let (toast_title, toast_style) = match &state.kind {
+            state::ToastKinds::Error => {
+                let toast_style = style::Style::default()
+                    .fg(style::Color::Red)
+                    .add_modifier(style::Modifier::BOLD);
+                let toast_title = text::Span::styled("Error", toast_style);
+                (toast_title, toast_style)
+            }
+            state::ToastKinds::Info => {
+                let toast_style = style::Style::default()
+                    .fg(style::Color::LightBlue)
+                    .add_modifier(style::Modifier::BOLD);
+                let toast_title = text::Span::styled("Info", toast_style);
+                (toast_title, toast_style)
+            }
+            state::ToastKinds::Notification => {
+                let toast_style = style::Style::default()
+                    .fg(style::Color::White)
+                    .add_modifier(style::Modifier::BOLD);
+                let toast_title = text::Span::styled("Notification", toast_style);
+                (toast_title, toast_style)
+            }
+            state::ToastKinds::Success => {
+                let toast_style = style::Style::default()
+                    .fg(style::Color::LightGreen)
+                    .add_modifier(style::Modifier::BOLD);
+                let toast_title = text::Span::styled("Success", toast_style);
+                (toast_title, toast_style)
+            }
+            state::ToastKinds::Warning => {
+                let toast_style = style::Style::default()
+                    .fg(style::Color::LightRed)
+                    .add_modifier(style::Modifier::BOLD);
+                let toast_title = text::Span::styled("Warning", toast_style);
+                (toast_title, toast_style)
+            }
+        };
+
+        // Get the toast message from the widget state
         let toast_message = state.message.clone();
 
         // Setup widget block
-        let block = widgets::Block::bordered().title(toast_title);
+        let block = widgets::Block::bordered()
+            .title(toast_title)
+            .style(toast_style);
 
         // let message = format!("Toast message: {:?}", state);
-        let paragraph = widgets::Paragraph::new(toast_message);
+        let paragraph =
+            widgets::Paragraph::new(toast_message).wrap(widgets::Wrap { trim: true });
 
+        // Render the widget block
         paragraph.block(block).render(widget_area, buf);
     }
-}
-
-fn top_right(width: u16, height: u16, area: layout::Rect) -> layout::Rect {
-    let toast_layout = layout::Layout::vertical([
-        layout::Constraint::Length(1),
-        layout::Constraint::Length(height),
-        layout::Constraint::Fill(1),
-    ])
-    .split(area);
-    
-    layout::Layout::horizontal([
-        layout::Constraint::Fill(1),
-        layout::Constraint::Length(width),
-        layout::Constraint::Length(1)
-    ])
-    .split(toast_layout[1])[1]
-    // unimplemented!()
 }
