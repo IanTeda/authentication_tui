@@ -24,3 +24,4 @@ git submodule update --init --recursive
 
 - [igrep - Interactive Grep](https://github.com/konradsz/igrep)
 - [Rex](https://github.com/TheRustyPickle/Rex/tree/main)
+- [Manga-tui](https://github.com/josueBarretogit/manga-tui)

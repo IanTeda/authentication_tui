@@ -17,16 +17,13 @@ use ratatui::{
     widgets::{self, Widget},
 };
 
-use crate::state;
-
-use super::helpers;
-
+use crate::{states, ui::helpers};
 // TODO: what goes into this struct and should we new() it?
 #[derive(Debug, Clone, PartialEq)]
 pub struct Toast {}
 
 impl widgets::StatefulWidget for Toast {
-    type State = state::Toast;
+    type State = states::Toast;
 
     /// Render the Toast
     fn render(self, area: layout::Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -37,35 +34,35 @@ impl widgets::StatefulWidget for Toast {
         widgets::Clear.render(widget_area, buf);
 
         let (toast_title, toast_style) = match &state.kind {
-            state::ToastKinds::Error => {
+            states::ToastKinds::Error => {
                 let toast_style = style::Style::default()
                     .fg(style::Color::Red)
                     .add_modifier(style::Modifier::BOLD);
                 let toast_title = text::Span::styled("Error", toast_style);
                 (toast_title, toast_style)
             }
-            state::ToastKinds::Info => {
+            states::ToastKinds::Info => {
                 let toast_style = style::Style::default()
                     .fg(style::Color::LightBlue)
                     .add_modifier(style::Modifier::BOLD);
                 let toast_title = text::Span::styled("Info", toast_style);
                 (toast_title, toast_style)
             }
-            state::ToastKinds::Notification => {
+            states::ToastKinds::Notification => {
                 let toast_style = style::Style::default()
                     .fg(style::Color::White)
                     .add_modifier(style::Modifier::BOLD);
                 let toast_title = text::Span::styled("Notification", toast_style);
                 (toast_title, toast_style)
             }
-            state::ToastKinds::Success => {
+            states::ToastKinds::Success => {
                 let toast_style = style::Style::default()
                     .fg(style::Color::LightGreen)
                     .add_modifier(style::Modifier::BOLD);
                 let toast_title = text::Span::styled("Success", toast_style);
                 (toast_title, toast_style)
             }
-            state::ToastKinds::Warning => {
+            states::ToastKinds::Warning => {
                 let toast_style = style::Style::default()
                     .fg(style::Color::LightRed)
                     .add_modifier(style::Modifier::BOLD);

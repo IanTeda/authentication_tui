@@ -1,12 +1,16 @@
-//-- ./src/handler.rs
+//-- ./src/handlers/key_events.rs
+
+// #![allow(unused)] // For beginning only.
 
 //! Handles the key press events and updates the application
 //! ---
-use crate::{rpc, App, AppResult};
+use std::time;
+
+use crate::{rpc, states, TuiResult};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 /// Handles the key events and updates the state of [`App`].
-pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
+pub async fn key_events(key_event: KeyEvent, app: &mut states::App) -> TuiResult<()> {
     match key_event.code {
         // Exit application on `ESC` or `q`
         KeyCode::Char('q') => {
@@ -22,6 +26,7 @@ pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<
             panic!("Intentional panic");
         }
         KeyCode::Char('t') => {
+            app.toast.displayed_on = time::Instant::now();
             app.toast.show = !app.toast.show;
         }
         //
@@ -40,26 +45,16 @@ pub async fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<
                 let (_response_metadata, _response_message, _response_extensions) =
                     response.into_parts();
 
-                app.popup.title = String::from("This is a test");
-                app.popup.message = format!("Message: {:?}", _response_metadata.clone());
-                app.popup.show = !app.popup.show;
-                app.backend.is_online = true;
+                // app.popup.title = String::from("This is a test");
+                // app.popup.message = format!("Message: {:?}", _response_metadata.clone());
+                // app.popup.show = !app.popup.show;
+                // app.backend.is_online = true;
             }
         }
         KeyCode::Esc => {
-            if app.popup.show {
-                app.popup.show = !app.popup.show;
-            };
             if app.toast.show {
                 app.toast.show = !app.toast.show;
             }
-        }
-        // Counter handlers
-        KeyCode::Right => {
-            app.increment_counter();
-        }
-        KeyCode::Left => {
-            app.decrement_counter();
         }
         // Other handlers you could add here.
         _ => {}

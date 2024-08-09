@@ -5,6 +5,8 @@
 //! Application model for toast message state
 //! ---
 
+use std::time::Instant;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ToastKinds {
     Error,
@@ -28,6 +30,9 @@ pub struct Toast {
 
     /// Auto hide the toast message
     pub auto_hide: bool,
+
+    /// When the toast notification was shown
+    pub displayed_on: Instant,
 }
 
 impl Default for Toast {
@@ -35,21 +40,21 @@ impl Default for Toast {
         let kind = ToastKinds::Notification;
         let show = false;
         let message = String::from("Something just happened that goes over one line to two..");
-        let auto_hide = false;
+        let auto_hide = true;
+        let displayed_on = Instant::now();
 
         Self {
             kind,
             show,
             message,
             auto_hide,
+            displayed_on,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    // #![allow(unused)] // For development only
-
     // Bring current module into scope
     use super::*;
 
@@ -60,13 +65,18 @@ mod tests {
 
     #[test]
     fn confirm_default_toast() -> Result<()> {
+        //-- Setup and Fixtures (Arrange)
+
+        //-- Execute Function (Act)
         let default_toast = Toast::default();
 
+        //-- Checks (Assertions)
         assert_eq!(default_toast.kind, ToastKinds::Notification);
         assert!(!default_toast.show);
-        assert_eq!(default_toast.message, String::from("Something just happened"));
-        assert!(!default_toast.auto_hide);
+        assert_eq!(default_toast.message, String::from("Something just happened that goes over one line to two.."));
+        assert!(default_toast.auto_hide);
 
+        // -- Return
         Ok(())
     }
 }

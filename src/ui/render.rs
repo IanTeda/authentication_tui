@@ -16,10 +16,12 @@ use ratatui::{
 
 use tracing_subscriber::fmt::format;
 
-use crate::{custom_widgets, App};
+use crate::states;
+
+use super::custom_widgets;
 
 /// Renders the user interface widgets.
-pub fn render(app: &mut App, frame: &mut Frame) {
+pub fn render(app: &mut states::App, frame: &mut Frame) {
     let area = frame.size();
 
     let container = Layout::vertical([
@@ -48,15 +50,15 @@ pub fn render(app: &mut App, frame: &mut Frame) {
         footer[1],
     );
 
-    if app.popup.show {
-        let block = Block::bordered().title(app.popup.title.clone());
-        let area = custom_widgets::helpers::centered_rect(60, 20, area);
-        frame.render_widget(widgets::Clear, area); //this clears out the background
-        let paragraph =
-            Paragraph::new(app.popup.message.clone());
-        let widget = paragraph.block(block).wrap(widgets::Wrap { trim: true });
-        frame.render_widget(widget, area);
-    }
+    // if app.popup.show {
+    //     let block = Block::bordered().title(app.popup.title.clone());
+    //     let area = custom_widgets::helpers::centered_rect(60, 20, area);
+    //     frame.render_widget(widgets::Clear, area); //this clears out the background
+    //     let paragraph =
+    //         Paragraph::new(app.popup.message.clone());
+    //     let widget = paragraph.block(block).wrap(widgets::Wrap { trim: true });
+    //     frame.render_widget(widget, area);
+    // }
 
     if app.toast.show {
         frame.render_stateful_widget(custom_widgets::Toast {}, area, &mut app.toast);

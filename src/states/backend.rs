@@ -1,9 +1,9 @@
 //-- ./src/app/backend.rs
 
-//! Application model for the Backend state
+//! Backend server model for the Backend state
 //! ---
 
-use chrono::{DateTime, Utc};
+use std::time;
 
 /// Backend state model
 #[derive(Debug, Clone, PartialEq)]
@@ -12,19 +12,19 @@ pub struct Backend {
     pub access_token: Option<String>,
 
     /// When was the access token received
-    pub access_on: Option<DateTime<Utc>>,
+    pub access_on: Option<time::Instant>,
 
     /// Refresh token (session) return by the backend
     pub refresh_token: Option<String>,
 
     /// When was the refresh token received
-    pub refresh_on: Option<DateTime<Utc>>,
+    pub refresh_on: Option<time::Instant>,
 
     /// Is the backend online
     pub is_online: bool,
 
-    /// When was the backed last checked for being online
-    pub is_online_checked: Option<DateTime<Utc>>,
+    /// When was the backend last checked for being online
+    pub status_checked_on: Option<time::Instant>,
 
     /// Are we logged into the back end
     pub is_logged_in: bool,
@@ -38,7 +38,7 @@ impl Default for Backend {
         let refresh_token = None;
         let refresh_on = None;
         let is_online = false;
-        let is_online_checked = None;
+        let status_checked_on = None;
         let is_logged_in = false;
 
         Self { 
@@ -47,7 +47,7 @@ impl Default for Backend {
             refresh_token, 
             refresh_on, 
             is_online, 
-            is_online_checked,
+            status_checked_on,
             is_logged_in,
         }
     }
@@ -67,16 +67,21 @@ mod tests {
 
     #[test]
     fn confirm_default_tokens() -> Result<()> {
+        //-- Setup and Fixtures (Arrange)
+
+        //-- Execute Function (Act)
         let default_token = Backend::default();
 
+        //-- Checks (Assertions)
         assert_eq!(default_token.access_token, None);
         assert_eq!(default_token.access_on, None);
         assert_eq!(default_token.refresh_token, None);
         assert_eq!(default_token.refresh_on, None);
         assert!(!default_token.is_online);
-        assert_eq!(default_token.is_online_checked, None);
+        assert_eq!(default_token.status_checked_on, None);
         assert!(!default_token.is_logged_in);
 
+        // -- Return
         Ok(())
     }
 }

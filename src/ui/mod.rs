@@ -11,3 +11,9 @@
 mod footer;
 mod render;
 pub use render::render;
+
+/// Custom tui widget renders
+pub mod custom_widgets;
+
+/// Helper functions for positioning the widgets
+pub mod helpers;

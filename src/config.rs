@@ -10,7 +10,7 @@
 
 use std::{fs, net, path};
 
-use crate::{AppResult, TuiError};
+use crate::{TuiResult, TuiError};
 
 /// Tui application configuration
 ///
@@ -110,7 +110,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn parse() -> AppResult<Self> {
+    pub fn parse() -> TuiResult<Self> {
         // Build config directory path
         let config_directory =
             directories::ProjectDirs::from("com", "ianteda", "authentication_tui")
@@ -160,7 +160,7 @@ impl Config {
 /// 
 /// * `config_file` - The PathPuf of the config file location to write to
 /// ---
-fn write_default_config(config_directory: &path::PathBuf, config_file: &path::PathBuf) -> AppResult<()> {
+fn write_default_config(config_directory: &path::PathBuf, config_file: &path::PathBuf) -> TuiResult<()> {
     // Initiate default config
     let default_config = Config::default();
 

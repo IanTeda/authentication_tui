@@ -1,14 +1,8 @@
 //-- ./src/lib.rs
 
-/// Application.
-mod app;
-pub use app::App;
-pub use app::AppResult;
-
 /// Configuration file parsing
 mod config;
 pub use config::Config;
-
 
 /// Tui Error enums
 mod error;
@@ -17,19 +11,24 @@ pub use error::TuiError;
 /// Terminal events handler.
 pub mod event;
 
-/// Event handler.
-pub mod handler;
+/// Event handlers.
+pub mod handlers;
 
+/// TUI application prelude
+mod prelude;
+pub use prelude::TuiResult;
+
+/// Proto client
 mod proto;
 pub use proto::rpc;
 pub use proto::RpcClient;
 
-mod state;
-
-/// Widget renderer.
-pub mod ui;
+/// Application states
+pub mod states;
 
 /// Terminal user interface.
 pub mod tui;
 
-pub mod custom_widgets;
+/// Widget renderer.
+pub mod ui;
+

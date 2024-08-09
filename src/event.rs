@@ -8,7 +8,7 @@ use crossterm::event::{Event as CrosstermEvent, KeyEvent, MouseEvent};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 
-use crate::{AppResult, TuiError};
+use crate::{TuiResult, TuiError};
 
 /// Terminal events.
 #[derive(Clone, Debug)]
@@ -95,7 +95,7 @@ impl EventHandler {
     ///
     /// This function will always block the current thread if
     /// there is no data available and it's possible for more data to be sent.
-    pub async fn next(&mut self) -> AppResult<Event> {
+    pub async fn next(&mut self) -> TuiResult<Event> {
         self.receiver
             .recv()
             .await
