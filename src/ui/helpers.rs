@@ -24,6 +24,17 @@ pub fn top_right(width: u16, height: u16, area: layout::Rect) -> layout::Rect {
 }
 
 /// Center rect using up certain percentage of the available rect `r`
+pub fn centered_vert(height: u16, area: layout::Rect) -> layout::Rect {
+    let spacing = (area.height - height) / 2;
+    layout::Layout::vertical([
+        layout::Constraint::Length(spacing),
+        layout::Constraint::Length(height),
+        layout::Constraint::Length(spacing),
+    ])
+    .split(area)[1]
+}
+
+/// Center rect using up certain percentage of the available rect `r`
 pub fn centered_rect(percent_x: u16, percent_y: u16, r: layout::Rect) -> layout::Rect {
     let popup_layout = layout::Layout::vertical([
         layout::Constraint::Percentage((100 - percent_y) / 2),

@@ -22,45 +22,49 @@ use super::custom_widgets;
 
 /// Renders the user interface widgets.
 pub fn render(app: &mut states::App, frame: &mut Frame) {
-    let area = frame.area();
+    // Get the terminal window area
+    let container = frame.area();
 
-    let container = Layout::vertical([
-        Constraint::Min(6),    // body
-        Constraint::Length(4), //footer
-    ])
-    .split(area);
+    // Split the terminal window (container) into body and footer rectangles
+    let (body, footer) = {
+        let split = Layout::vertical([
+            Constraint::Min(6),    // body
+            Constraint::Length(1), //footer
+        ])
+        .split(container);
+        (split[0], split[1])
+    };
 
+    // Render the body rectangle
     frame.render_widget(
         Paragraph::new("Top").block(Block::new().borders(Borders::ALL)),
-        container[0],
+        body,
     );
 
-    let footer =
-        Layout::horizontal([Constraint::Percentage(90), Constraint::Percentage(12)])
-            .split(container[1]);
+    // Split up the footer rectangle
+    let (footer_left, status_area) = {
+        let split = Layout::horizontal([
+            Constraint::Min(24), // Left
+            Constraint::Length(12), // Right
+        ])
+        .split(footer);
+        (split[0], split[1])
+    };
 
     frame.render_widget(
-        Paragraph::new("Footer Left").block(Block::new().borders(Borders::ALL)),
-        footer[0],
+        Paragraph::new("Footer Left").block(Block::new()),
+        footer_left,
     );
 
-    frame.render_widget(
-        Paragraph::new(format!("Server Online: {}", app.backend.is_online))
-            .block(Block::new().borders(Borders::ALL)),
-        footer[1],
-    );
+    let footer_status_widget = custom_widgets::FooterStatus::default();
+    frame.render_stateful_widget(footer_status_widget, status_area, &mut app.backend);
 
-    // if app.popup.show {
-    //     let block = Block::bordered().title(app.popup.title.clone());
-    //     let area = custom_widgets::helpers::centered_rect(60, 20, area);
-    //     frame.render_widget(widgets::Clear, area); //this clears out the background
-    //     let paragraph =
-    //         Paragraph::new(app.popup.message.clone());
-    //     let widget = paragraph.block(block).wrap(widgets::Wrap { trim: true });
-    //     frame.render_widget(widget, area);
-    // }
-
+    // Render the toast notification if show is true
     if app.toast.show {
-        frame.render_stateful_widget(custom_widgets::Toast {}, area, &mut app.toast);
+        frame.render_stateful_widget(
+            custom_widgets::Toast {},
+            container,
+            &mut app.toast,
+        );
     }
 }

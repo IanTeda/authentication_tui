@@ -6,3 +6,6 @@
 /// Toast notification widget
 mod toast;
 pub use toast::Toast;
+
+mod footer_status;
+pub use footer_status::FooterStatus;
