@@ -3,11 +3,14 @@
 //! Backend server model for the Backend state
 //! ---
 
-use std::time;
+use std::{net, time};
 
 /// Backend state model
 #[derive(Debug, Clone, PartialEq)]
 pub struct Backend {
+    /// The http address with port of the backend server to connect to
+    pub address: net::SocketAddr,
+
     /// Access token returned during login
     pub access_token: Option<String>,
 
@@ -30,9 +33,9 @@ pub struct Backend {
     pub is_logged_in: bool,
 }
 
-impl Default for Backend {
-    /// Default instance of Backend state
-    fn default() -> Self {
+impl Backend {
+    pub fn new(address: net::SocketAddr) -> Self {
+
         let access_token = None;
         let access_on = None;
         let refresh_token = None;
@@ -42,12 +45,13 @@ impl Default for Backend {
         let is_logged_in = false;
 
         Self { 
+            address, 
             access_token, 
             access_on, 
             refresh_token, 
             refresh_on, 
             is_online, 
-            status_checked_on,
+            status_checked_on, 
             is_logged_in,
         }
     }
@@ -57,6 +61,10 @@ impl Default for Backend {
 mod tests {
     // #![allow(unused)] // For development only
 
+    use fake::Fake;
+    use fake::faker::internet::en::IPv4;
+    use rand::prelude::*;
+
     // Bring current module into scope
     use super::*;
 
@@ -64,22 +72,25 @@ mod tests {
     pub type Result<T> = core::result::Result<T, Error>;
     pub type Error = Box<dyn std::error::Error>;
 
-
     #[test]
     fn confirm_default_tokens() -> Result<()> {
         //-- Setup and Fixtures (Arrange)
+        let random_ip: net::Ipv4Addr = IPv4().fake();
+        let random_port = rand::thread_rng().gen_range(0..1000);
+        let random_socket = net::SocketAddr::new(net::IpAddr::V4(random_ip), random_port);
 
         //-- Execute Function (Act)
-        let default_token = Backend::default();
+        let backend_state = Backend::new(random_socket);
 
         //-- Checks (Assertions)
-        assert_eq!(default_token.access_token, None);
-        assert_eq!(default_token.access_on, None);
-        assert_eq!(default_token.refresh_token, None);
-        assert_eq!(default_token.refresh_on, None);
-        assert!(!default_token.is_online);
-        assert_eq!(default_token.status_checked_on, None);
-        assert!(!default_token.is_logged_in);
+        assert_eq!(backend_state.address, random_socket);
+        assert_eq!(backend_state.access_token, None);
+        assert_eq!(backend_state.access_on, None);
+        assert_eq!(backend_state.refresh_token, None);
+        assert_eq!(backend_state.refresh_on, None);
+        assert!(!backend_state.is_online);
+        assert_eq!(backend_state.status_checked_on, None);
+        assert!(!backend_state.is_logged_in);
 
         // -- Return
         Ok(())

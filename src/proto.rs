@@ -3,11 +3,14 @@
 // #![allow(unused)] // For beginning only.
 
 //! Modules for access the backend RPC server
+//!
+//! * [Tonic LND client](https://github.com/Kixunil/tonic_lnd/blob/master/src/lib.rs)
 
-use tonic::transport;
 use crate::TuiError;
+use std::net;
+use tonic::transport;
 
-/// Bring proto into scope
+/// Bring protobuf generated code into scope
 pub mod rpc {
     // The string specified here must match the proto package name
     tonic::include_proto!("authentication");
@@ -29,17 +32,19 @@ impl RpcClient {
         &mut self.utilities
     }
 
-    /// Spawn a new tonic client based on the tonic server
+    /// Create an new tonic client for the given Socket Address
     pub async fn new(
-        address: String,
+        address: net::SocketAddr,
     ) -> Result<Self, TuiError> {
         // Build Tonic Client channel
+        let address = format!("http://{}", address);
         let uri: tonic::transport::Uri = address.parse()?;
-        let endpoint = transport::Channel::builder(uri);
-        let channel: transport::Channel = endpoint.connect().await?;
+        let channel = transport::Channel::builder(uri).connect().await?;
 
+        // Build the endpoint channels
         let utilities = UtilitiesClient::new(channel.clone());
 
+        // build the RPC Client
         let client = RpcClient { utilities };
 
         Ok(client)

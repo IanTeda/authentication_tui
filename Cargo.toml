@@ -18,7 +18,7 @@ futures = "0.3.30"
 http = "1.1.0"
 lazy_static = "1.5.0"
 prost = "0.13"
-ratatui = "0.27.0"
+ratatui = "0.28.0"
 serde = "1.0.204"
 thiserror = "1.0.63"
 tokio = { version = "1.35.1", features = ["full"] }
@@ -31,3 +31,7 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [build-dependencies]
 tonic-build = { version = "0.12", features = ["prost"] }
+
+[dev-dependencies]
+fake = { version = "2.9.2", features =["http"]}
+rand = "0.8.5"

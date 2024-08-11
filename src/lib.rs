@@ -26,6 +26,9 @@ pub use proto::RpcClient;
 /// Application states
 pub mod states;
 
+/// Backend service interfaces
+// mod rpc;
+
 /// Terminal user interface.
 pub mod tui;
 

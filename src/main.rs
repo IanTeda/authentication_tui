@@ -16,15 +16,15 @@ async fn main() -> TuiResult<()> {
     // Parse application configuration file
     let config = Config::parse()?;
 
-    // Create an application.
-    let mut app = states::App::new(config);
-
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());
     let terminal = Terminal::new(backend)?;
-    let events = EventHandler::new(250);
+    let events = EventHandler::new(config.clone().tui.tick_rate);
     let mut tui = Tui::new(terminal, events);
     tui.init()?;
+
+    // Create an application.
+    let mut app = states::App::new(config);
 
     // Start the main loop.
     while app.running {

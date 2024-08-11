@@ -22,7 +22,7 @@ use super::custom_widgets;
 
 /// Renders the user interface widgets.
 pub fn render(app: &mut states::App, frame: &mut Frame) {
-    let area = frame.size();
+    let area = frame.area();
 
     let container = Layout::vertical([
         Constraint::Min(6),    // body

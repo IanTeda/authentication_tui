@@ -3,14 +3,14 @@
 // #![allow(unused)] // For development only
 
 //! Tui application configuration module
-//! 
+//!
 //! Parse the configuration file into a struct. If no configuration file exists
 //! write a file using the Config struct default vales
 //! ---
 
 use std::{fs, net, path};
 
-use crate::{TuiResult, TuiError};
+use crate::{TuiError, TuiResult};
 
 /// Tui application configuration
 ///
@@ -29,8 +29,8 @@ pub struct Tui {
     /// The file used to store the application configuration
     pub config_file: path::PathBuf,
 
+    /// Duration of the application loop in milliseconds
     pub tick_rate: u64,
-
     // pub frame_rate: f64,
 
     // pub key_refresh_rate: f64,
@@ -100,6 +100,12 @@ impl Default for Backend {
     }
 }
 
+impl Backend {
+    pub fn address(&self) -> net::SocketAddr {
+        net::SocketAddr::new(self.ip, self.port)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Default, serde::Deserialize, serde::Serialize)]
 pub struct Config {
     /// Configure the Tui application
@@ -155,12 +161,15 @@ impl Config {
 }
 
 /// Write a default configuration file to file passed into the function
-/// 
+///
 /// # Parameters
-/// 
+///
 /// * `config_file` - The PathPuf of the config file location to write to
 /// ---
-fn write_default_config(config_directory: &path::PathBuf, config_file: &path::PathBuf) -> TuiResult<()> {
+fn write_default_config(
+    config_directory: &path::PathBuf,
+    config_file: &path::PathBuf,
+) -> TuiResult<()> {
     // Initiate default config
     let default_config = Config::default();
 
@@ -189,12 +198,13 @@ mod tests {
     pub type Result<T> = core::result::Result<T, Error>;
     pub type Error = Box<dyn std::error::Error>;
 
-
     #[test]
     fn confirm_default_config_file() -> Result<()> {
         //-- Setup and Fixtures (Arrange)
         let config_directory = path::PathBuf::from("/tmp/authentication_tui_test");
-        let config_file = path::PathBuf::from("/tmp/authentication_tui_test/test_config_file.toml");
+        let config_file = path::PathBuf::from(
+            "/tmp/authentication_tui_test/test_config_file.toml",
+        );
 
         // Clean up previous test file if required
         if config_file.exists() {
@@ -223,5 +233,4 @@ mod tests {
         //-- Return
         Ok(())
     }
-
 }

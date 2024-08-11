@@ -1,6 +1,6 @@
 //-- ./src/state/app.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Holds the state and application logic
 //! ---
@@ -49,7 +49,7 @@ impl App {
     pub fn new(config: Config) -> Self {
         let running = true;
         let mode = states::AppModes::Normal;
-        let backend = states::Backend::default();
+        let backend = states::Backend::new(config.backend.address());
         // let popup = states::Popup::default();
         let toast = states::Toast::default();
 
