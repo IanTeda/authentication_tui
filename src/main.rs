@@ -7,6 +7,7 @@ use authentication_tui::{handlers, Config, TuiResult};
 use authentication_tui::event::{Event, EventHandler};
 use authentication_tui::tui::Tui;
 use authentication_tui::states;
+use authentication_tui::tracing;
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use std::io;
@@ -15,6 +16,10 @@ use std::io;
 async fn main() -> TuiResult<()> {
     // Parse application configuration file
     let config = Config::parse()?;
+
+    // Start tracing
+    let data_directory = config.clone().tui.data_directory;
+    tracing::init(data_directory)?;
 
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());

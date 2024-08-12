@@ -27,6 +27,7 @@ pub async fn tick(state: &mut states::App) -> TuiResult<()> {
             let mut rpc_client = RpcClient::new(address).await?;
             let request_message = tonic::Request::new( rpc::Empty {});
             let response = rpc_client.utilities().ping(request_message).await?;
+            
             let (_response_metadata, _response_message, _response_extensions) =
                 response.into_parts();
 

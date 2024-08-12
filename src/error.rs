@@ -42,4 +42,7 @@ pub enum TuiError {
     #[error(transparent)]
     TonicStatus(#[from] tonic::Status),
 
+    #[error(transparent)]
+    TracingSubscriber(#[from] tracing_subscriber::util::TryInitError),
+
 }

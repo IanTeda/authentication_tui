@@ -1,5 +1,7 @@
 //-- ./src/tracing.rs
 
+// #![allow(unused)] // For beginning only.
+
 //! Tracing initiator
 //!
 //! # References
@@ -7,42 +9,53 @@
 //! * [Setup Logging with tracing](https://ratatui.rs/recipes/apps/log-with-tracing/)
 //! ---
 
-use std::fs;
+use std::{fs, path::PathBuf};
 
-use tracing_appender::non_blocking::WorkerGuard;
+use tracing_error::ErrorLayer;
+use tracing_subscriber::prelude::*;
 
-use crate::app::AppResult;
+use crate::TuiResult;
 
-#[allow(dead_code)]
-pub struct Tracer(WorkerGuard);
+/// Initialize the tracing subscriber to log to a file
+///
+/// This function initialises the tracing subscriber to log to a file named `tracing.log` in the
+/// project data directory.
+pub fn init(data_directory: PathBuf) -> TuiResult<()> {
+    // Recursively create a directory and all of its parent components if they are missing.
+    fs::create_dir_all(data_directory.clone())?;
 
-impl Tracer {
-    /// Initialize the tracing subscriber to log to a file
-    ///
-    /// This function initialises the tracing subscriber to log to a file named `tracing.log` in the
-    /// current directory. The function returns a [`WorkerGuard`] that must be kept alive for the
-    /// duration of the program to ensure that logs are flushed to the file on shutdown. The logs are
-    /// written in a non-blocking fashion to ensure that the logs do not block the main thread.
-    pub fn init() -> AppResult<Self> {
-        //TODO: Log to system folders
-        let file = fs::File::create("tracing.log")?;
+    // Set log file
+    let log_file = data_directory.join("tracing.log");
+    let log_file = std::fs::File::create(log_file.clone())?;
 
-        let (non_blocking, guard) = tracing_appender::non_blocking(file);
+    // std::env::set_var(
+    //     "RUST_LOG",
+    //     std::env::var("RUST_LOG")
+    //         .or_else(|_| std::env::var(LOG_ENV.clone()))
+    //         .unwrap_or_else(|_| format!("{}=info", env!("CARGO_CRATE_NAME"))),
+    // );
 
-        // By default, the subscriber is configured to log all events with a level of `DEBUG` or higher,
-        // but this can be changed by setting the `RUST_LOG` environment variable.
-        // TODO: Can do better than this, improve format of log line
-        let env_filter = tracing_subscriber::EnvFilter::builder()
-            .with_default_directive(tracing::Level::DEBUG.into())
-            .from_env_lossy();
+    // By default, the subscriber is configured to log all events with a level of `DEBUG` or higher,
+    // but this can be changed by setting the `RUST_LOG` environment variable.
+    // TODO: Can do better than this, improve format of log line
+    let env_filter = tracing_subscriber::EnvFilter::builder()
+        .with_default_directive(tracing::Level::DEBUG.into())
+        .from_env_lossy();
 
-        tracing_subscriber::fmt()
-            .with_writer(non_blocking)
-            .with_env_filter(env_filter)
-            .init();
+    let file_subscriber = tracing_subscriber::fmt::layer()
+        .with_file(true)
+        .with_line_number(true)
+        .with_writer(log_file)
+        .with_target(false)
+        .with_ansi(false)
+        .with_filter(env_filter);
 
-        tracing::info!("Starring tracing");
+    tracing_subscriber::registry()
+        .with(file_subscriber)
+        .with(ErrorLayer::default())
+        .try_init()?;
 
-        Ok(Self(guard))
-    }
+    tracing::info!("Starring tracing");
+
+    Ok(())
 }

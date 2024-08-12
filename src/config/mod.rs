@@ -8,111 +8,20 @@
 //! write a file using the Config struct default vales
 //! ---
 
-use std::{fs, net, path};
+use std::{fs, path};
 
 use crate::{TuiError, TuiResult};
 
-/// Tui application configuration
-///
-/// ## References
-///
-/// * [crates-tui/src/config.rs](https://github.com/ratatui-org/crates-tui/blob/main/src/config.rs)
-/// ---
-#[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
-pub struct Tui {
-    /// The directory to use for storing application configuration ( etc.).
-    pub config_folder: path::PathBuf,
-
-    /// The directory to use for storing application data (logs etc.).
-    pub data_folder: path::PathBuf,
-
-    /// The file used to store the application configuration
-    pub config_file: path::PathBuf,
-
-    /// Duration of the application loop in milliseconds
-    pub tick_rate: u64,
-    // pub frame_rate: f64,
-
-    // pub key_refresh_rate: f64,
-
-    // pub enable_mouse: bool,
-
-    // pub enable_paste: bool,
-
-    // pub prompt_padding: u16,
-
-    // pub key_bindings: KeyBindings,
-
-    // pub color: Base16Palette,
-}
-
-impl Default for Tui {
-    /// Default settings used to write to file if config file not found
-    fn default() -> Self {
-        let project_directory =
-            directories::ProjectDirs::from("com", "ianteda", "authentication");
-
-        let config_folder =
-            project_directory.clone().unwrap().config_dir().to_owned();
-
-        let data_folder = project_directory
-            // .ok_or(Error::Static("Error reading Project Directory"))?
-            .unwrap()
-            .data_dir()
-            .to_owned();
-
-        let config_file = config_folder.join("config.toml");
-
-        let tick_rate: u64 = 250;
-
-        Self {
-            config_folder,
-            data_folder,
-            config_file,
-            tick_rate,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
-pub struct Backend {
-    /// IP address of the backend server
-    pub ip: net::IpAddr,
-
-    /// Port used by the backend server endpoints
-    pub port: u16,
-
-    /// Optional default email address
-    pub default_email: Option<String>,
-}
-
-impl Default for Backend {
-    fn default() -> Self {
-        let localhost = net::IpAddr::V4(net::Ipv4Addr::new(127, 0, 0, 1));
-        let port = 8081;
-        let default_email = Some(String::from("authentication@teda.id.au"));
-
-        Self {
-            ip: localhost,
-            port,
-            default_email,
-        }
-    }
-}
-
-impl Backend {
-    pub fn address(&self) -> net::SocketAddr {
-        net::SocketAddr::new(self.ip, self.port)
-    }
-}
+mod backend;
+mod tui;
 
 #[derive(Debug, Clone, PartialEq, Default, serde::Deserialize, serde::Serialize)]
 pub struct Config {
     /// Configure the Tui application
-    pub tui: Tui,
+    pub tui: tui::TuiConfig,
 
     /// Backend configuration
-    pub backend: Backend,
+    pub backend: backend::BackendConfig,
 }
 
 impl Config {

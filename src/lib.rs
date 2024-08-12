@@ -29,6 +29,9 @@ pub mod states;
 /// Backend service interfaces
 // mod rpc;
 
+/// Application tracing (logging)
+pub mod tracing;
+
 /// Terminal user interface.
 pub mod tui;
 
