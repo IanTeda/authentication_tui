@@ -30,7 +30,8 @@ pub struct TuiConfig {
 
     /// Duration of the application loop in milliseconds
     pub tick_rate: u64,
-    // pub frame_rate: f64,
+
+    pub frame_rate: u64,
 
     // pub key_refresh_rate: f64,
 
@@ -64,11 +65,14 @@ impl Default for TuiConfig {
 
         let tick_rate: u64 = 250;
 
+        let frame_rate: u64 = 60;
+
         Self {
             config_directory,
             data_directory,
             config_file,
             tick_rate,
+            frame_rate,
         }
     }
 }

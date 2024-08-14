@@ -4,6 +4,10 @@
 
 
 /// Application Error types to define response
+/// 
+/// #### References
+/// 
+/// * [Tired-Fox/rataify](https://github.com/Tired-Fox/rataify/blob/main/src/error.rs)
 /// ---
 
 /// Application error enum
