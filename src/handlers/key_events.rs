@@ -10,7 +10,7 @@ use crate::{states, TuiResult};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 /// Handles the key events and updates the state of [`App`].
-pub async fn key_events(key_event: KeyEvent, app: &mut states::App) -> TuiResult<()> {
+pub async fn key_events(key_event: KeyEvent, app: &mut states::AppState) -> TuiResult<()> {
     match key_event.code {
         // Exit application on `ESC` or `q`
         KeyCode::Char('q') => {

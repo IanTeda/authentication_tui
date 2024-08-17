@@ -3,7 +3,7 @@
 //! Initialises/exits the terminal interface
 //! ---
 
-use crate::event::EventHandler;
+use crate::handlers::crossterm::CrosstermEventHandler;
 use crate::ui;
 use crate::{states, TuiResult};
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
@@ -25,12 +25,12 @@ pub struct Tui {
     terminal: ratatui::Terminal<CrosstermBackend<io::Stdout>>,
 
     /// Terminal event handler.
-    pub events: EventHandler,
+    pub events: CrosstermEventHandler,
 }
 
 impl Tui {
     /// Constructs a new instance of [`Tui`].
-    pub fn new(events: EventHandler) -> TuiResult<Self> {
+    pub fn new(events: CrosstermEventHandler) -> TuiResult<Self> {
         let terminal = ratatui::Terminal::new(CrosstermBackend::new(io::stdout()))?;
         Ok(Self { terminal, events })
     }
@@ -59,7 +59,7 @@ impl Tui {
     ///
     /// [`Draw`]: ratatui::Terminal::draw
     /// [`rendering`]: crate::ui::render
-    pub fn draw(&mut self, app: &mut states::App) -> TuiResult<()> {
+    pub fn draw(&mut self, app: &mut states::AppState) -> TuiResult<()> {
         self.terminal.draw(|frame| ui::render(app, frame))?;
         Ok(())
     }

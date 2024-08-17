@@ -136,6 +136,7 @@ dependencies = [
  "rand",
  "ratatui",
  "serde",
+ "strum",
  "thiserror",
  "tokio",
  "tokio-util",

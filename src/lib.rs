@@ -1,5 +1,9 @@
 //-- ./src/lib.rs
 
+// Channel actions
+mod action;
+pub use action::Action;
+
 /// Configuration file parsing
 mod config;
 pub use config::Config;
@@ -9,7 +13,7 @@ mod error;
 pub use error::TuiError;
 
 /// Terminal events handler.
-pub mod event;
+// pub mod event;
 
 /// Event handlers.
 pub mod handlers;

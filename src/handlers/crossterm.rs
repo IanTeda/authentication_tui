@@ -26,6 +26,8 @@ pub enum Event {
 
     Closed,
 
+    Render,
+
     /// Terminal tick.
     Tick,
 
@@ -49,9 +51,9 @@ pub enum Event {
 }
 
 /// Terminal event handler.
-#[allow(dead_code)]
+// #[allow(dead_code)]
 #[derive(Debug)]
-pub struct EventHandler {
+pub struct CrosstermEventHandler {
     /// Event sender channel.
     event_sender: mpsc::UnboundedSender<Event>,
 
@@ -65,7 +67,7 @@ pub struct EventHandler {
     cancellation_token: tokio_util::sync::CancellationToken,
 }
 
-impl EventHandler {
+impl CrosstermEventHandler {
     /// Constructs a new instance of [`EventHandler`].
     pub fn new(tick_rate: u64, frame_rate: u64) -> Self {
         // Set the timing of the loop
@@ -109,7 +111,7 @@ impl EventHandler {
                     _ = frame_delay => {
                         _event_sender.send(Event::Frame).unwrap();
                     }
-                    event = crossterm_stream => match event {
+                    crossterm_event = crossterm_stream => match crossterm_event {
                         Some(Ok(evt)) => match evt {
                             CrosstermEvent::Key(key) => {
                                 // If statement avoids window double key press bug

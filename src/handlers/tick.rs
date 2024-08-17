@@ -10,7 +10,7 @@ use std::time;
 use crate::{rpc, states, RpcClient, TuiResult};
 
 /// Handles the key events and updates the state of [`App`].
-pub async fn tick(state: &mut states::App) -> TuiResult<()> {
+pub async fn tick(state: &mut states::AppState) -> TuiResult<()> {
     let now = time::Instant::now();
 
     // If there is toast showing hide it after three seconds

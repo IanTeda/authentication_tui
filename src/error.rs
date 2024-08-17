@@ -49,4 +49,7 @@ pub enum TuiError {
     #[error(transparent)]
     TracingSubscriber(#[from] tracing_subscriber::util::TryInitError),
 
+    #[error(transparent)]
+    TokioSync(#[from] tokio::sync::mpsc::error::SendError<crate::Action>),
+
 }

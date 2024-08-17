@@ -21,7 +21,7 @@ use crate::states;
 use super::custom_widgets;
 
 /// Renders the user interface widgets.
-pub fn render(app: &mut states::App, frame: &mut Frame) {
+pub fn render(app: &mut states::AppState, frame: &mut Frame) {
     // Get the terminal window area
     let container = frame.area();
 

@@ -1,11 +1,13 @@
 //-- ./src/state/app.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! Holds the state and application logic
 //! ---
 
-use crate::{states, Config};
+use tokio::sync::mpsc;
+
+use crate::{states, Config, Action};
 
 /// The modes the TUI app can be in
 #[derive(Debug, Clone, PartialEq)]
@@ -23,8 +25,8 @@ pub enum AppModes {
 }
 
 /// Application.
-#[derive(Debug, Clone, PartialEq)]
-pub struct App {
+#[derive(Debug)]
+pub struct AppState {
     /// Application running state
     pub running: bool,
 
@@ -42,9 +44,15 @@ pub struct App {
 
     /// Toast message state
     pub toast: states::Toast,
+
+    /// Action send channel
+    pub action_sender: mpsc::UnboundedSender<Action>,
+
+    /// Action receive channel
+    pub action_receiver: mpsc::UnboundedReceiver<Action>,
 }
 
-impl App {
+impl AppState {
     /// Constructs a new instance of [`App`].
     pub fn new(config: Config) -> Self {
         let running = true;
@@ -52,6 +60,7 @@ impl App {
         let backend = states::Backend::new(config.backend.address());
         // let popup = states::Popup::default();
         let toast = states::Toast::default();
+        let (action_sender, action_receiver) = mpsc::unbounded_channel();
 
         Self {
             running,
@@ -60,6 +69,8 @@ impl App {
             backend,
             // popup,
             toast,
+            action_sender,
+            action_receiver,
         }
     }
 
@@ -88,7 +99,7 @@ mod tests {
         let default_config = Config::default();
 
         //-- Execute Function (Act)
-        let default_app = App::new(default_config);
+        let default_app = AppState::new(default_config);
 
         //-- Checks (Assertions)
         assert!(default_app.running);

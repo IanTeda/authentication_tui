@@ -6,7 +6,7 @@
 //! ---
 
 mod app;
-pub use app::App;
+pub use app::AppState;
 pub use app::AppModes;
 
 /// Application backend state
