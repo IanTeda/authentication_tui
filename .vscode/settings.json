@@ -1,20 +1,15 @@
 {
     "cSpell.words": [
-        "appender",
         "Center",
         "centered",
         "chrono",
         "crossterm",
         "ianteda",
-        "igrep",
-        "LOGLEVEL",
-        "lossy",
         "Prost",
         "proto",
         "protoc",
         "protos",
         "ratatui",
-        "thiserror"
     ],
     "lldb.displayFormat": "auto",
     "lldb.dereferencePointers": true,
