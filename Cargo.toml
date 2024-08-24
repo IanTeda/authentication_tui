@@ -8,3 +8,5 @@ description = "A TUI application front end for the Authentication Mircorsevice"
 keywords = ["authentication", "tui", "ratatui", "tonic client"]
 
 [dependencies]
+crossterm = {version = "0.28.1"}
+ratatui = { version = "0.28.0"}
