@@ -7,7 +7,9 @@
 //! so that the keys are not echoed to the user’s screen when pressed and on quitting
 //! restoring the terminal.
 
-use std::io;
+use std::io::{self, Result};
+
+use ratatui::{style::Stylize, widgets};
 
 pub struct Terminal {
     /// Backend terminal used to render the TUI
@@ -21,34 +23,39 @@ pub struct Terminal {
 }
 
 impl Terminal {
+    /// Construct a new terminal backend
     pub fn new() -> io::Result<Terminal> {
         // Construct a new Ratatui terminal instance
-        let terminal =
+        let backend =
             ratatui::Terminal::new(ratatui::backend::CrosstermBackend::new(io::stdout()))?;
 
         // Default mouse enable is false
-        let mouse = false;
+        let mouse_enabled = false;
 
         // Default paste enable is false
-        let paste = false;
+        let paste_enabled = false;
 
         Ok(Self {
-            backend: terminal,
-            mouse_enabled: mouse,
-            paste_enabled: paste,
+            backend,
+            mouse_enabled,
+            paste_enabled,
         })
     }
 
+    /// Enable capture of terminal backend mouse events
     pub fn enable_mouse(mut self, mouse: bool) -> Self {
         self.mouse_enabled = mouse;
         self
     }
 
+    /// Enable capture of terminal backend paste events
     pub fn enable_paste(mut self, paste: bool) -> Self {
         self.paste_enabled = paste;
         self
     }
 
+    /// Enter into terminal backend raw mode and alternate screen buffer. Enable 
+    /// mouse and paste event capture if enabled.
     pub fn enter(&mut self) -> io::Result<()> {
         // Enable terminal raw mode, which turns off input and output processing by
         // the terminal. This gives the TUI application control over when to print
@@ -76,7 +83,9 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn restore(mut self) -> io::Result<()> {
+    /// Restore the terminal backend by disabling raw mode and paste and mouse 
+    /// capture. Then leave the alternate screen secondary buffer.
+    pub fn restore(&mut self) -> io::Result<()> {
         // Check if raw crossterm backend raw mode is enabled
         if crossterm::terminal::is_raw_mode_enabled()? {
             
@@ -99,6 +108,23 @@ impl Terminal {
             // Disable backend terminal raw mode
             crossterm::terminal::disable_raw_mode()?;
         }
+
+        Ok(())
+    }
+
+    /// Draw to the terminal backend buffer
+    pub fn draw(&mut self) -> Result<()> {
+        // A closure (an anonymous method) with a single Frame parameter, that
+        // renders the full size of the terminal window.
+        self.backend.draw(|frame| {
+            let area = frame.area();
+            frame.render_widget(
+                widgets::Paragraph::new("Hello Ratatui! (press 'q' to quit)")
+                    .white()
+                    .on_blue(),
+                area,
+            );
+        })?;
 
         Ok(())
     }

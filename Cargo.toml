@@ -10,3 +10,4 @@ keywords = ["authentication", "tui", "ratatui", "tonic client"]
 [dependencies]
 crossterm = {version = "0.28.1"}
 ratatui = { version = "0.28.0"}
+serde = { version = "1.0.208", features = ["derive"] }
