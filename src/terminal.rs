@@ -26,8 +26,9 @@ impl Terminal {
     /// Construct a new terminal backend
     pub fn new() -> io::Result<Terminal> {
         // Construct a new Ratatui terminal instance
-        let backend =
-            ratatui::Terminal::new(ratatui::backend::CrosstermBackend::new(io::stdout()))?;
+        let backend = ratatui::Terminal::new(
+            ratatui::backend::CrosstermBackend::new(io::stdout()),
+        )?;
 
         // Default mouse enable is false
         let mouse_enabled = false;
@@ -54,7 +55,7 @@ impl Terminal {
         self
     }
 
-    /// Enter into terminal backend raw mode and alternate screen buffer. Enable 
+    /// Enter into terminal backend raw mode and alternate screen buffer. Enable
     /// mouse and paste event capture if enabled.
     pub fn enter(&mut self) -> io::Result<()> {
         // Enable terminal raw mode, which turns off input and output processing by
@@ -65,7 +66,11 @@ impl Terminal {
         // Enter into the alternate screen, which is a secondary screen that allows
         // the TUI application to render whatever it needs to, without disturbing
         // the normal output of terminal apps in the shell.
-        crossterm::execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen, crossterm::cursor::Hide)?;
+        crossterm::execute!(
+            io::stdout(),
+            crossterm::terminal::EnterAlternateScreen,
+            crossterm::cursor::Hide
+        )?;
 
         // Enable mouse event capture
         if self.mouse_enabled {
@@ -74,7 +79,10 @@ impl Terminal {
 
         // Enable paste event capture
         if self.paste_enabled {
-            crossterm::execute!(io::stdout(), crossterm::event::EnableBracketedPaste)?;
+            crossterm::execute!(
+                io::stdout(),
+                crossterm::event::EnableBracketedPaste
+            )?;
         }
 
         // Clear the terminal window
@@ -83,27 +91,36 @@ impl Terminal {
         Ok(())
     }
 
-    /// Restore the terminal backend by disabling raw mode and paste and mouse 
+    /// Restore the terminal backend by disabling raw mode and paste and mouse
     /// capture. Then leave the alternate screen secondary buffer.
     pub fn restore(&mut self) -> io::Result<()> {
         // Check if raw crossterm backend raw mode is enabled
         if crossterm::terminal::is_raw_mode_enabled()? {
-            
             // Flush the terminal backend
             self.backend.flush()?;
 
             // Disable terminal backend mouse event capture
             if self.mouse_enabled {
-                crossterm::execute!(io::stdout(), crossterm::event::DisableMouseCapture)?;
+                crossterm::execute!(
+                    io::stdout(),
+                    crossterm::event::DisableMouseCapture
+                )?;
             }
 
             // Disable terminal backend paste event capture
             if self.paste_enabled {
-                crossterm::execute!(io::stdout(), crossterm::event::DisableBracketedPaste)?;
+                crossterm::execute!(
+                    io::stdout(),
+                    crossterm::event::DisableBracketedPaste
+                )?;
             }
 
             // Exit backend terminal alternate screen mode and show cursor
-            crossterm::execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen, crossterm::cursor::Show)?;
+            crossterm::execute!(
+                io::stdout(),
+                crossterm::terminal::LeaveAlternateScreen,
+                crossterm::cursor::Show
+            )?;
 
             // Disable backend terminal raw mode
             crossterm::terminal::disable_raw_mode()?;

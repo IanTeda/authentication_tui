@@ -5,14 +5,21 @@
         "chrono",
         "crossterm",
         "ianteda",
+        "libc",
+        "lossy",
         "Prost",
         "proto",
         "protoc",
         "protos",
+        "rataify",
         "ratatui",
-        "Stylize"
+        "rustc",
+        "Stylize",
+        "thiserror",
+        "Vergen"
     ],
     "lldb.displayFormat": "auto",
     "lldb.dereferencePointers": true,
-    "lldb.consoleMode": "commands"
+    "lldb.consoleMode": "commands",
+    "todo-tree.regex.regex": "(//|//!|#|<!--|;|/\\*|^|^- [ \\t]*(-|\\d+.))\\s*($TAGS)"
 }

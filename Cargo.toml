@@ -8,6 +8,30 @@ description = "A TUI application front end for the Authentication Mircorsevice"
 keywords = ["authentication", "tui", "ratatui", "tonic client"]
 
 [dependencies]
-crossterm = {version = "0.28.1"}
-ratatui = { version = "0.28.0"}
+better-panic = "0.3.0"
+clap = { version = "4.5.16", features = [
+    "derive",
+    "cargo",
+    "wrap_help",
+    "unicode",
+    "string",
+    "unstable-styles",
+] }
+color-eyre = "0.6.3"
+config = "0.14.0"
+crossterm = { version = "0.28.1" }
+directories = "5.0.1"
+libc = "0.2.158"
+pretty_assertions = "1.4.0"
+ratatui = { version = "0.28.0" }
 serde = { version = "1.0.208", features = ["derive"] }
+strip-ansi-escapes = "0.2.0"
+thiserror = "1.0.63"
+toml = "0.8.19"
+tracing = "0.1.40"
+tracing-error = "0.2.0"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
+[build-dependencies]
+anyhow = "1.0.86"
+vergen-gix = { version = "1.0.0", features = ["build", "cargo"] }

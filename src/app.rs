@@ -1,18 +1,22 @@
-// #![allow(unused)] // For beginning only.
-
-use std::io::Result;
+#![allow(unused)] // For beginning only.
 
 use crate::{state, Terminal};
 
+pub type Result<T> = std::result::Result<T, crate::error::Error>;
+
 pub struct App {
+    // Temporary application state
     state: state::AppState,
+
+    // Application configuration
+    config: crate::config::Config,
 }
 
 impl App {
-    pub fn new() -> Result<Self> {
+    pub fn new(config: crate::config::Config) -> Result<Self> {
         let state = state::AppState::default();
 
-        Ok(Self { state })
+        Ok(Self { state, config })
     }
 
     pub fn run(&mut self) -> Result<()> {
