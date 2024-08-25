@@ -9,7 +9,8 @@ use authentication_tui::prelude::*;
 
 use clap::Parser;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     // Initiate error panic hook
     authentication_tui::error::init()?;
 
@@ -27,7 +28,7 @@ fn main() -> Result<()> {
     let mut app = authentication_tui::App::new(config)?;
 
     // Run the TUI app
-    app.run()?;
+    app.run().await?;
 
     Ok(())
 }

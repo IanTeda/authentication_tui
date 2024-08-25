@@ -19,7 +19,7 @@ impl App {
         Ok(Self { state, config })
     }
 
-    pub fn run(&mut self) -> Result<()> {
+    pub async fn run(&mut self) -> Result<()> {
         let mut terminal = Terminal::new()?;
         terminal.enter()?;
 

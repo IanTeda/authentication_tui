@@ -19,18 +19,23 @@ clap = { version = "4.5.16", features = [
 ] }
 color-eyre = "0.6.3"
 config = "0.14.0"
-crossterm = { version = "0.28.1" }
+crossterm = { version = "0.28.1", default-features = false, features = [
+    "serde",
+    "event-stream",
+] }
 directories = "5.0.1"
+futures = "0.3.30"
 libc = "0.2.158"
 pretty_assertions = "1.4.0"
-ratatui = { version = "0.28.0" }
+ratatui = { version = "0.28.1", features = ["serde", "macros"] }
 serde = { version = "1.0.208", features = ["derive"] }
 strip-ansi-escapes = "0.2.0"
 thiserror = "1.0.63"
+tokio = { version = "1.39.3", features = ["full"] }
 toml = "0.8.19"
 tracing = "0.1.40"
 tracing-error = "0.2.0"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter", "serde"] }
 
 [build-dependencies]
 anyhow = "1.0.86"
