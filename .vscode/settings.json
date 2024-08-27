@@ -3,6 +3,7 @@
         "Center",
         "centered",
         "chrono",
+        "colors",
         "crossterm",
         "ianteda",
         "libc",

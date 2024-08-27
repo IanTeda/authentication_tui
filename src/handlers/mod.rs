@@ -4,3 +4,4 @@
 //! ---
 
 mod crossterm;
+pub use crossterm::CrosstermEventLoopHandler;

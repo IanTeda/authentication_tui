@@ -1,4 +1,4 @@
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 use crate::{state, Terminal};
 
@@ -20,7 +20,7 @@ impl App {
     }
 
     pub async fn run(&mut self) -> Result<()> {
-        let mut terminal = Terminal::new()?;
+        let mut terminal = Terminal::new(self.config.app.tick_rate, self.config.app.frame_rate)?;
         terminal.enter()?;
 
         // The TUI main loop

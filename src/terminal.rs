@@ -11,6 +11,8 @@ use std::io::{self, Result};
 
 use ratatui::{style::Stylize, widgets};
 
+use crate::handlers;
+
 pub struct Terminal {
     /// Backend terminal used to render the TUI
     pub backend: ratatui::Terminal<ratatui::backend::CrosstermBackend<io::Stdout>>,
@@ -20,15 +22,19 @@ pub struct Terminal {
 
     /// Enable paste events in backend terminal
     paste_enabled: bool,
+
+    pub events: handlers::CrosstermEventLoopHandler,
 }
 
 impl Terminal {
     /// Construct a new terminal backend
-    pub fn new() -> io::Result<Terminal> {
+    pub fn new(tick_rate: f64, frame_rate: f64) -> io::Result<Terminal> {
         // Construct a new Ratatui terminal instance
         let backend = ratatui::Terminal::new(
             ratatui::backend::CrosstermBackend::new(io::stdout()),
         )?;
+
+        let events = handlers::CrosstermEventLoopHandler::new(tick_rate, frame_rate);
 
         // Default mouse enable is false
         let mouse_enabled = false;
@@ -37,6 +43,7 @@ impl Terminal {
         let paste_enabled = false;
 
         Ok(Self {
+            events,
             backend,
             mouse_enabled,
             paste_enabled,

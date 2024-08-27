@@ -38,7 +38,7 @@ pub enum Error {
     Config(#[from] config::ConfigError),
 }
 
-pub fn init() -> Result<()> {
+pub fn init(tick_rate: f64, frame_rate: f64) -> Result<()> {
     let (panic_hook, eyre_hook) = color_eyre::config::HookBuilder::default()
         .panic_section(format!(
             "This is a bug. Consider reporting it at {}",
@@ -50,7 +50,7 @@ pub fn init() -> Result<()> {
         .into_hooks();
     eyre_hook.install()?;
     std::panic::set_hook(Box::new(move |panic_info| {
-        if let Ok(mut t) = crate::Terminal::new() {
+        if let Ok(mut t) = crate::Terminal::new(tick_rate, frame_rate) {
             if let Err(r) = t.restore() {
                 tracing::error!("Unable to exit Terminal: {:?}", r);
             }
