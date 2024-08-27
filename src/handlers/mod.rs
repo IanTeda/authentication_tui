@@ -3,5 +3,8 @@
 //! Handlers module
 //! ---
 
-mod crossterm;
-pub use crossterm::CrosstermEventLoopHandler;
+mod action;
+pub use action::Action;
+
+mod event;
+pub use event::EventLoopHandler;

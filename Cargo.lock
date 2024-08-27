@@ -139,6 +139,7 @@ dependencies = [
  "ratatui",
  "serde",
  "strip-ansi-escapes",
+ "strum",
  "thiserror",
  "tokio",
  "tokio-util",

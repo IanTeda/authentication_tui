@@ -2,19 +2,18 @@
 
 // #![allow(unused)] // For beginning only.
 
-//! Module for mapping crossterm terminal backend events
+//! Module for mapping crossterm terminal backend events to tui application events
+//! 
 //! ---
 
-use crossterm::event::{
-    Event as CrosstermEvent, KeyEvent, KeyEventKind, MouseEvent,
-};
+use crossterm::event::{Event as CrosstermEvent, KeyEventKind};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
 // use crate::prelude::*;
 
-/// Terminal events.
+/// TUI Application events.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     Closed,
@@ -22,8 +21,8 @@ pub enum Event {
     FocusGained,
     FocusLost,
     Init,
-    Key(KeyEvent),
-    Mouse(MouseEvent),
+    Key(crossterm::event::KeyEvent),
+    Mouse(crossterm::event::MouseEvent),
     Paste(String),
     Quit,
     Render,
@@ -32,7 +31,7 @@ pub enum Event {
 }
 
 #[derive(Debug)]
-pub struct CrosstermEventLoopHandler {
+pub struct EventLoopHandler {
     /// How many times per second should a tick loop (event) happen
     tick_rate: f64,
 
@@ -46,13 +45,13 @@ pub struct CrosstermEventLoopHandler {
     receiver: mpsc::UnboundedReceiver<Event>,
 
     /// Event handler thread.
-    handler: tokio::task::JoinHandle<()>,
+    task: tokio::task::JoinHandle<()>,
 
     /// Signal the cancellation of the event loop in async
     cancellation_token: tokio_util::sync::CancellationToken,
 }
 
-impl CrosstermEventLoopHandler {
+impl EventLoopHandler {
     /// Construct a new instance of the Crossterm event loop handler
     pub fn new(tick_rate: f64, frame_rate: f64) -> Self {
         // Initiate send receive event channels
@@ -67,18 +66,17 @@ impl CrosstermEventLoopHandler {
             frame_rate,
             sender,
             receiver,
-            handler,
+            task: handler,
             cancellation_token,
         }
     }
 
+    /// Cancel the existing token
     pub fn cancel(&self) {
         self.cancellation_token.cancel();
-        // if let Some(handle) = self.handler.take() {
-        //     handle.await.unwrap();
-        // }
     }
 
+    /// Start the event loop
     pub fn start(&mut self) {
         // Cancel any existing event tasks
         self.cancel();
@@ -86,7 +84,7 @@ impl CrosstermEventLoopHandler {
         // Generate new cancellation token
         self.cancellation_token = CancellationToken::new();
 
-        // Construct event loop
+        // Construct crossterm event loop handler
         let event_loop = Self::event_loop(
             self.sender.clone(),
             self.cancellation_token.clone(),
@@ -94,11 +92,13 @@ impl CrosstermEventLoopHandler {
             self.frame_rate,
         );
 
-        self.handler = tokio::spawn(async {
+        // Move task into an async thread
+        self.task = tokio::spawn(async {
             event_loop.await;
         })
     }
 
+    /// The event loop
     async fn event_loop(
         sender: mpsc::UnboundedSender<Event>,
         cancellation_token: tokio_util::sync::CancellationToken,
