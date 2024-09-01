@@ -7,6 +7,24 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug executable 'authentication_tui'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=authentication_tui",
+                    "--package=authentication_tui"
+                ],
+                "filter": {
+                    "name": "authentication_tui",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in library 'authentication_tui'",
             "cargo": {
                 "args": [
@@ -18,24 +36,6 @@
                 "filter": {
                     "name": "authentication_tui",
                     "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'authentication_tui'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=authentication_tui",
-                    "--package=authentication_tui"
-                ],
-                "filter": {
-                    "name": "authentication_tui",
-                    "kind": "bin"
                 }
             },
             "args": [],

@@ -57,8 +57,10 @@ impl EventLoopHandler {
         // Initiate send receive event channels
         let (sender, receiver) = mpsc::unbounded_channel();
 
-        let handler = tokio::spawn(async move {});
+        // Construct the task handle for the channel
+        let task = tokio::spawn(async move {});
 
+        // Generate a new cancellation token for breaking out of the event loop
         let cancellation_token = CancellationToken::new();
 
         Self {
@@ -66,7 +68,7 @@ impl EventLoopHandler {
             frame_rate,
             sender,
             receiver,
-            task: handler,
+            task,
             cancellation_token,
         }
     }
@@ -138,12 +140,12 @@ impl EventLoopHandler {
                 // event and send matched event to the que
                 crossterm_event = event_stream.next().fuse() => match crossterm_event {
                     Some(Ok(event)) => match event {
+                        CrosstermEvent::FocusGained => Event::FocusGained,
+                        CrosstermEvent::FocusLost => Event::FocusLost,
                         CrosstermEvent::Key(key) if key.kind == KeyEventKind::Press => Event::Key(key),
                         CrosstermEvent::Mouse(mouse) => Event::Mouse(mouse),
-                        CrosstermEvent::Resize(x, y) => Event::Resize(x, y),
-                        CrosstermEvent::FocusLost => Event::FocusLost,
-                        CrosstermEvent::FocusGained => Event::FocusGained,
                         CrosstermEvent::Paste(s) => Event::Paste(s),
+                        CrosstermEvent::Resize(x, y) => Event::Resize(x, y),
                         _ => continue, // ignore other events
                     }
                     Some(Err(_)) => Event::Error,
@@ -159,7 +161,7 @@ impl EventLoopHandler {
         }
     }
 
-    pub async fn next_event(&mut self) -> Option<Event> {
+    pub async fn next(&mut self) -> Option<Event> {
         self.receiver.recv().await
     }
 }

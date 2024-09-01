@@ -95,6 +95,9 @@ impl Terminal {
         // Clear the terminal window
         self.backend.clear()?;
 
+        // Start capturing crossterm terminal backend events
+        self.events.start();
+
         Ok(())
     }
 

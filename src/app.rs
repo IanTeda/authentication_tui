@@ -1,8 +1,11 @@
-// #![allow(unused)] // For beginning only.
+//-- ./src/app.rs
 
-use crate::{state, Terminal};
+//! The TUI application module
+//! ---
 
-pub type Result<T> = std::result::Result<T, crate::error::Error>;
+#![allow(unused)] // For beginning only.
+
+use crate::{handlers::{self, Action}, prelude::*, state, Terminal};
 
 pub struct App {
     // Temporary application state
@@ -10,39 +13,74 @@ pub struct App {
 
     // Application configuration
     config: crate::config::Config,
+
+    actions: crate::handlers::ActionHandler,
 }
 
 impl App {
+    /// Create a new app instance
     pub fn new(config: crate::config::Config) -> Result<Self> {
+        // Construct a default application state
         let state = state::AppState::default();
 
-        Ok(Self { state, config })
+        // Construct a default action handler
+        let actions = handlers::ActionHandler::default();
+
+        Ok(Self { state, config, actions })
     }
 
+    /// Run the TUI application
     pub async fn run(&mut self) -> Result<()> {
-        let mut terminal = Terminal::new(self.config.app.tick_rate, self.config.app.frame_rate)?;
+        // Construct a new terminal backend instance
+        let tick_rate = self.config.app.tick_rate;
+        let frame_rate = self.config.app.frame_rate;
+        let mut terminal = Terminal::new(tick_rate, frame_rate)?;
+
+        // Enter terminal raw mode
         terminal.enter()?;
 
-        // The TUI main loop
-        while self.state.is_running {
-            terminal.draw()?;
+        // terminal.draw()?;
 
-            // Terminal events
-            // Wait every 16 seconds before checking for a crossterm event
-            if crossterm::event::poll(std::time::Duration::from_millis(16))? {
-                if let crossterm::event::Event::Key(key) = crossterm::event::read()?
-                {
-                    if key.kind == crossterm::event::KeyEventKind::Press
-                        && key.code == crossterm::event::KeyCode::Char('q')
-                    {
-                        self.state.is_running = false;
-                    }
-                }
-            }
+        // // The TUI application main loop
+        while self.state.is_running {
+
+            // Add any new terminal events to the action handler
+            self.actions.handle_events(&mut terminal).await?;
+
+            // Update the application
+            self.update(&mut terminal).await?;
         }
 
         // Restore terminal screen
         terminal.restore()?;
+
+        Ok(())
+    }
+
+    async fn update(&mut self, terminal: &mut Terminal) -> Result<()> {
+        while let Ok(action) = self.actions.action_rx.try_recv() {
+            if action != handlers::Action::Tick && action != handlers::Action::Render {
+                tracing::debug!("{action:?}");
+            }
+            match action {
+                // Action::Tick => {
+                //     self.last_tick_key_events.drain(..);
+                // }
+                Action::Quit => self.state.is_running = false,
+                // Action::Suspend => self.should_suspend = true,
+                // Action::Resume => self.should_suspend = false,
+                // Action::ClearScreen => tui.terminal.clear()?,
+                // Action::Resize(w, h) => self.handle_resize(tui, w, h)?,
+                Action::Render => self.render(terminal)?,
+                _ => {}
+            }
+        }
+        Ok(())
+    }
+
+    fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
+        // Redraw the terminal UI
+        terminal.draw()?;
 
         Ok(())
     }
