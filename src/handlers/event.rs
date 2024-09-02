@@ -161,6 +161,7 @@ impl EventLoopHandler {
         }
     }
 
+    /// Get the next event in the que
     pub async fn next(&mut self) -> Option<Event> {
         self.receiver.recv().await
     }

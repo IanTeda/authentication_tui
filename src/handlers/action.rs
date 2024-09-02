@@ -1,20 +1,19 @@
 //-- ./src/handlers/action.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Module for managing the action task channels
-//! 
+//!
 //! ---
 
 use crossterm::event::KeyCode;
 use tokio::sync::mpsc;
 
-use crate::prelude::*;
-use crate::Terminal;
-use crate::handlers;
-use crate::handlers::Event;
+use crate::{handlers, prelude::*, Terminal};
 
-#[derive(Debug, Clone, PartialEq, Eq, strum::Display, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, strum::Display, serde::Serialize, serde::Deserialize,
+)]
 pub enum Action {
     ClearScreen,
     Error,
@@ -36,9 +35,6 @@ pub struct ActionHandler {
 
     /// Action receiver channel.
     pub action_rx: mpsc::UnboundedReceiver<Action>,
-
-    /// Action handler thread.
-    task: tokio::task::JoinHandle<()>,
 }
 
 impl Default for ActionHandler {
@@ -47,18 +43,15 @@ impl Default for ActionHandler {
         // Initiate send receive event channels
         let (action_tx, action_rx) = mpsc::unbounded_channel();
 
-        // Construct the task handle for the channel
-        let task = tokio::spawn(async move {});
-
-        Self{
+        Self {
             action_tx,
             action_rx,
-            task,
         }
     }
 }
 
 impl ActionHandler {
+    /// Transform an application event into an Action an then add to the que.
     pub async fn handle_events(&mut self, terminal: &mut Terminal) -> Result<()> {
         // Clone the task sender channel
         let action_tx = self.action_tx.clone();
@@ -68,19 +61,21 @@ impl ActionHandler {
             return Ok(());
         };
 
+        // Match the event to an Action
         let action = match event {
             // crate::handlers::event::Event::Closed => todo!(),
-            Event::Error => Action::Error,
-            Event::FocusGained => Action::Resume,
-            Event::FocusLost => Action::Resume,
+            handlers::Event::Error => Action::Error,
+            handlers::Event::FocusGained => Action::Resume,
+            handlers::Event::FocusLost => Action::Resume,
             // crate::handlers::event::Event::Init => todo!(),
-            Event::Key(key) => self.handle_key_event(key),
+            handlers::Event::Key(key) => self.handle_key_event(key),
             // crate::handlers::event::Event::Mouse(_) => todo!(),
-            Event::Paste(s) => Action::Paste(s),
-            Event::Quit => Action::Quit,
-            Event::Render => Action::Render,
-            Event::Resize(x, y) => Action::Resize(x, y),
-            Event::Tick => Action::Tick,
+            handlers::Event::Paste(s) => Action::Paste(s),
+            handlers::Event::Quit => Action::Quit,
+            handlers::Event::Render => Action::Render,
+            handlers::Event::Resize(x, y) => Action::Resize(x, y),
+            handlers::Event::Tick => Action::Tick,
+            // Every other event to Nil
             _ => Action::Nil,
         };
 
@@ -90,10 +85,11 @@ impl ActionHandler {
         Ok(())
     }
 
-    pub fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) -> Action {
-        // Clone the task sender channel
-        let action_tx = self.action_tx.clone();
-
+    /// Match a key event to an Action
+    pub fn handle_key_event(
+        &mut self,
+        key_event: crossterm::event::KeyEvent,
+    ) -> Action {
         // Match the key event, returning the appropriate action type
         match key_event.code {
             // crossterm::event::KeyCode::Backspace => todo!(),
@@ -127,10 +123,9 @@ impl ActionHandler {
             _ => Action::Nil,
         }
     }
-    
+
+    /// Get the next Action in the que.
     pub async fn next(&mut self) -> Option<Action> {
         self.action_rx.recv().await
     }
-
-
 }
