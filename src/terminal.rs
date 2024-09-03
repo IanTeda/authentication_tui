@@ -8,7 +8,6 @@
 //! restoring the terminal.
 
 use std::{io, ops::{Deref, DerefMut}};
-use ratatui::{style::Stylize, widgets};
 
 use crate::{handlers, prelude::*};
 
@@ -138,23 +137,6 @@ impl Terminal {
 
         Ok(())
     }
-
-    // /// Draw to the terminal backend buffer
-    // pub fn draw(&mut self) -> Result<()> {
-    //     // A closure (an anonymous method) with a single Frame parameter, that
-    //     // renders the full size of the terminal window.
-    //     self.backend.draw(|frame| {
-    //         let area = frame.area();
-    //         frame.render_widget(
-    //             widgets::Paragraph::new("Hello Ratatui! (press 'q' to quit)")
-    //                 .white()
-    //                 .on_blue(),
-    //             area,
-    //         );
-    //     })?;
-
-    //     Ok(())
-    // }
 }
 
 impl Deref for Terminal {

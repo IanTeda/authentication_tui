@@ -33,8 +33,10 @@ impl App {
         // Initiate a new fps component and store it on the heap (Box) not the stack
         let fps_component = Box::new(ui::FpsCounter::new());
 
+        let container = Box::new(ui::Container::new());
+
         // Built the components vector
-        let components: Vec<Box<dyn ui::Component>> = vec![fps_component];
+        let components: Vec<Box<dyn ui::Component>> = vec![container, fps_component];
 
         Ok(Self {
             state,
