@@ -11,6 +11,8 @@ pub mod cli;
 mod config;
 pub use config::Config;
 
+pub mod ui;
+
 pub mod error;
 pub use error::Error;
 
