@@ -1,3 +1,8 @@
+//-- ./src/ui/component.rs
+
+//! The Component trait
+//! ---
+
 use crossterm::event as crossterm;
 use ratatui::layout::Size;
 use tokio::sync::mpsc::UnboundedSender;

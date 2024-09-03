@@ -107,7 +107,7 @@ impl EventLoopHandler {
         tick_rate: f64,
         frame_rate: f64,
     ) {
-        let mut event_stream = crossterm::event::EventStream::new();
+        let mut crossterm_event_stream = crossterm::event::EventStream::new();
 
         // Calculate tick per second
         let mut tick_interval = tokio::time::interval(
@@ -138,7 +138,7 @@ impl EventLoopHandler {
 
                 // Poll the crossterm backend terminal stream for next crossterm terminal
                 // event and send matched event to the que
-                crossterm_event = event_stream.next().fuse() => match crossterm_event {
+                crossterm_event = crossterm_event_stream.next().fuse() => match crossterm_event {
                     Some(Ok(event)) => match event {
                         CrosstermEvent::FocusGained => Event::FocusGained,
                         CrosstermEvent::FocusLost => Event::FocusLost,

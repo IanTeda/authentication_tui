@@ -18,6 +18,7 @@ pub struct App {
     /// Actions handler
     actions: crate::handlers::ActionHandler,
 
+    /// UI components that get plugged in
     pub components: Vec<Box<dyn ui::Component>>,
 }
 
@@ -33,6 +34,7 @@ impl App {
         // Initiate a new fps component and store it on the heap (Box) not the stack
         let fps_component = Box::new(ui::FpsCounter::new());
 
+        // Initiate a new main container (body)
         let container = Box::new(ui::Container::new());
 
         // Built the components vector
@@ -49,26 +51,29 @@ impl App {
     /// Run the TUI application
     pub async fn run(&mut self) -> Result<()> {
         //-- 1. Build the terminal backend
-        let tick_rate = self.config.app.tick_rate;
-        let frame_rate = self.config.app.frame_rate;
-        let mut terminal = Terminal::new(tick_rate, frame_rate)?;
+        // Initiate a new backend terminal
+        let mut terminal = Terminal::new(
+            self.config.app.tick_rate, 
+            self.config.app.frame_rate
+        )?;
 
         // Enter terminal raw mode
         terminal.enter()?;
 
         //-- 2. Plugin components
-        // Pass in the terminal area into the component
+        // Pass the terminal area into each component
         for component in self.components.iter_mut() {
             // Deref of terminal backend needed for size
             component.init(terminal.size()?)?;
         }
 
-        // Pass in the action handler transmit channel
+        // Pass the action handler transmit channel into each component
         for component in self.components.iter_mut() {
-            component.register_action_handler(self.actions.action_tx.clone())?;
+            component.register_action_handler(self.actions.sender.clone())?;
         }
 
-        // Pass in the configuration
+        // Pass the configuration instance into each components
+        // TODO: Do we need this, wouldn't state be better to pass in?
         for component in self.components.iter_mut() {
             component.register_config_handler(self.config.clone())?;
         }
@@ -91,10 +96,10 @@ impl App {
         Ok(())
     }
 
-    /// Update the application for a given action.
+    /// Update the application state for a given action.
     async fn update(&mut self, terminal: &mut Terminal) -> Result<()> {
         // Loop through all actions in the que.
-        while let Ok(action) = self.actions.action_rx.try_recv() {
+        while let Ok(action) = self.actions.receiver.try_recv() {
             if action != handlers::Action::Tick && action != handlers::Action::Render
             {
                 tracing::debug!("{action:?}");
@@ -115,22 +120,21 @@ impl App {
             // Plugin in components update function
             for component in self.components.iter_mut() {
                 if let Some(action) = component.update(action.clone())? {
-                    self.actions.action_tx.send(action)?
+                    self.actions.sender.send(action)?
                 };
             }
         }
         Ok(())
     }
 
+    /// Render the terminal user interface
     fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-        // Redraw the terminal UI
-        // terminal.draw()?;
         terminal.draw(|frame| {
             for component in self.components.iter_mut() {
                 if let Err(err) = component.draw(frame, frame.area()) {
                     let _ = self
                         .actions
-                        .action_tx
+                        .sender
                         .send(handlers::Action::Error(format!("Failed to draw: {:?}", err)));
                 }
             }

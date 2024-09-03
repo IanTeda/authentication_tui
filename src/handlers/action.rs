@@ -31,21 +31,21 @@ pub enum Action {
 #[derive(Debug)]
 pub struct ActionHandler {
     /// Action sender channel.
-    pub action_tx: mpsc::UnboundedSender<Action>,
+    pub sender: mpsc::UnboundedSender<Action>,
 
     /// Action receiver channel.
-    pub action_rx: mpsc::UnboundedReceiver<Action>,
+    pub receiver: mpsc::UnboundedReceiver<Action>,
 }
 
 impl Default for ActionHandler {
     /// Default settings used to write to file if config file not found
     fn default() -> Self {
         // Initiate send receive event channels
-        let (action_tx, action_rx) = mpsc::unbounded_channel();
+        let (sender, receiver) = mpsc::unbounded_channel();
 
         Self {
-            action_tx,
-            action_rx,
+            sender,
+            receiver,
         }
     }
 }
@@ -55,16 +55,18 @@ impl ActionHandler {
     pub async fn handle_events(
         &mut self,
         terminal: &mut Terminal,
-        components: &mut Vec<Box<dyn ui::Component>>, 
+        #[allow(clippy::ptr_arg)]
+        components: &mut Vec<Box<dyn ui::Component>>, //TODO: Needs more research
     ) -> Result<()> {
         // Clone the task sender channel
-        let action_tx = self.action_tx.clone();
+        let action_sender = self.sender.clone();
 
         // Get the next event from the terminal events que
         let Some(event) = terminal.events.next().await else {
             return Ok(());
         };
 
+        // Clone event for passing into components
         let component_event = &event.clone();
 
         // Match the event to an Action
@@ -86,11 +88,11 @@ impl ActionHandler {
         };
 
         // Send action to the que
-        action_tx.send(action)?;
+        action_sender.send(action)?;
 
         for component in components.iter_mut() {
             if let Some(action) = component.handle_events(Some(component_event))? {
-                action_tx.send(action)?;
+                action_sender.send(action)?;
             }
         }
 
@@ -138,6 +140,6 @@ impl ActionHandler {
 
     /// Get the next Action in the que.
     pub async fn next(&mut self) -> Option<Action> {
-        self.action_rx.recv().await
+        self.receiver.recv().await
     }
 }

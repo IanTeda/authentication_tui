@@ -22,6 +22,7 @@ pub struct Terminal {
     /// Enable paste events in backend terminal
     pub paste_enabled: bool,
 
+    /// Crossterm event loop handler
     pub events: handlers::EventLoopHandler,
 }
 
@@ -61,8 +62,8 @@ impl Terminal {
         self
     }
 
-    /// Enter into terminal backend raw mode and alternate screen buffer. Enable
-    /// mouse and paste event capture if enabled.
+    /// Enter into terminal backend raw mode and alternate screen buffer. 
+    /// Enable mouse and paste event capture if enabled.
     pub fn enter(&mut self) -> Result<()> {
         // Enable terminal raw mode, which turns off input and output processing by
         // the terminal. This gives the TUI application control over when to print

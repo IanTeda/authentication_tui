@@ -1,3 +1,6 @@
+//-- ./src/ui/container.rs
+
+//! The main UI container component
 
 use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
