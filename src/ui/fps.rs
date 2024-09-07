@@ -17,18 +17,22 @@ use crate::{ui, handlers, prelude::*};
 /// Define component state
 #[derive(Debug, Clone, PartialEq)]
 pub struct FpsCounter {
-    // Time since last tick
+    /// Time since last tick
     last_tick_update: Instant,
-    // The number of ticks
+
+    /// The number of ticks
     tick_count: u32,
-    // Rolling ticks per second calculation
+
+    /// Rolling ticks per second calculation
     ticks_per_second: f64,
 
-    // Time since last frame
+    /// Time since last frame
     last_frame_update: Instant,
-    // The number of frames
+
+    /// The number of frames
     frame_count: u32,
-    // Rolling frames per second calculation
+
+    /// Rolling frames per second calculation
     frames_per_second: f64,
 }
 

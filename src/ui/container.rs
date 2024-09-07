@@ -1,6 +1,9 @@
 //-- ./src/ui/container.rs
 
+// #![allow(unused)] // For beginning only.
+
 //! The main UI container component
+//! ---
 
 use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
@@ -44,12 +47,10 @@ impl ui::Component for Container {
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
-        // frame.render_widget(Paragraph::new("hello world"), area);
-        //             let area = frame.area();
         frame.render_widget(
                 widgets::Paragraph::new("Hello Ratatui! (press 'q' to quit)")
                     .white()
-                    .on_blue(),
+                    .on_black(),
                 area,
             );
         Ok(())

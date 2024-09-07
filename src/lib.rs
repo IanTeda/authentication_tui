@@ -14,6 +14,9 @@ pub mod cli;
 mod config;
 pub use config::Config;
 
+/// Domain type definitions
+pub mod domain;
+
 /// UI components and widgets
 pub mod ui;
 

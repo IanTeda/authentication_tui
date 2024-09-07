@@ -1,22 +1,25 @@
 //-- ./src/app.rs
 
+// #![allow(unused)] // For beginning only.
+
 //! The TUI application module
 //! ---
-
-// #![allow(unused)] // For beginning only.
 
 use crate::{handlers, prelude::*, state, ui, Terminal};
 
 // #[derive(Debug)]
 pub struct App {
     /// Application state
-    state: state::AppState,
+    state: state::State,
 
     /// Application configuration
     config: crate::config::Config,
 
     /// Actions handler
     actions: crate::handlers::ActionHandler,
+
+    /// Toast message handler
+    // toasts: crate::handlers::ToastHandler,
 
     /// UI components that get plugged in
     pub components: Vec<Box<dyn ui::Component>>,
@@ -26,7 +29,7 @@ impl App {
     /// Create a new app instance
     pub fn new(config: crate::config::Config) -> Result<Self> {
         // Construct a default application state
-        let state = state::AppState::default();
+        let state = state::State::default();
 
         // Construct a default action handler
         let actions = handlers::ActionHandler::default();
@@ -37,8 +40,15 @@ impl App {
         // Initiate a new main container (body)
         let container = Box::new(ui::Container::new());
 
+        // Initiate a new toast message component
+        let toast = Box::new(ui::Toast::new());
+
         // Built the components vector
-        let components: Vec<Box<dyn ui::Component>> = vec![container, fps_component];
+        let components: Vec<Box<dyn ui::Component>> = vec![
+            container, 
+            fps_component, 
+            toast
+        ];
 
         Ok(Self {
             state,
@@ -80,7 +90,7 @@ impl App {
 
         //-- 3. Run the main application loop
         // The TUI application main loop
-        while self.state.is_running {
+        while self.state.app.is_running {
             // Add any new terminal events to the action handler
             self.actions
                 .handle_events(&mut terminal, &mut self.components)
@@ -108,7 +118,7 @@ impl App {
                 // Action::Tick => {
                 //     self.last_tick_key_events.drain(..);
                 // }
-                handlers::Action::Quit => self.state.is_running = false,
+                handlers::Action::Quit => self.state.app.is_running = false,
                 // Action::Suspend => self.should_suspend = true,
                 // Action::Resume => self.should_suspend = false,
                 // Action::ClearScreen => tui.terminal.clear()?,

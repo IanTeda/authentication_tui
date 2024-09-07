@@ -9,10 +9,11 @@
 use crossterm::event as crossterm;
 use tokio::sync::mpsc;
 
-use crate::{handlers, prelude::*, ui, Terminal};
+use crate::{domain, handlers, prelude::*, ui, Terminal};
 
+// TODO: I don't think we need Display derive
 #[derive(
-    Debug, Clone, PartialEq, Eq, strum::Display, serde::Serialize, serde::Deserialize,
+    Debug, Clone, PartialEq, strum::Display, serde::Serialize, serde::Deserialize,
 )]
 pub enum Action {
     ClearScreen,
@@ -26,6 +27,7 @@ pub enum Action {
     Resume,
     Suspend,
     Tick,
+    Toast(domain::Toast)
 }
 
 #[derive(Debug)]
@@ -133,9 +135,22 @@ impl ActionHandler {
             // crossterm::event::KeyCode::KeypadBegin => todo!(),
             // crossterm::event::KeyCode::Media(_) => todo!(),
             // crossterm::event::KeyCode::Modifier(_) => todo!(),
-            crossterm::KeyCode::Esc | crossterm::KeyCode::Char('q') => Action::Quit,
+            crossterm::KeyCode::Char('q') => Action::Quit,
             _ => Action::Nil,
         }
+    }
+
+    pub fn add_toast(&mut self, toast: domain::Toast) -> Result<()> {
+        // Clone the task sender channel
+        let action_sender = self.sender.clone();
+
+        // Build the toast action
+        let action = Action::Toast(toast);
+
+        // Send action to the que
+        action_sender.send(action)?;
+
+        Ok(())
     }
 
     /// Get the next Action in the que.

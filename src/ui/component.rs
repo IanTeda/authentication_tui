@@ -23,7 +23,10 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<()>` - An Ok result or an error.
-    fn register_action_handler(&mut self, action_tx: UnboundedSender<handlers::Action>) -> Result<()> {
+    fn register_action_handler(
+        &mut self,
+        action_tx: UnboundedSender<handlers::Action>,
+    ) -> Result<()> {
         let _ = action_tx; // to appease clippy
         Ok(())
     }
@@ -65,10 +68,17 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<Option<Action>>` - An action to be processed or none.
-    fn handle_events(&mut self, event: Option<&handlers::Event>) -> Result<Option<handlers::Action>> {
+    fn handle_events(
+        &mut self,
+        event: Option<&handlers::Event>,
+    ) -> Result<Option<handlers::Action>> {
         let action = match event {
-            Some(handlers::Event::Key(key_event)) => self.handle_key_event(*key_event)?,
-            Some(handlers::Event::Mouse(mouse_event)) => self.handle_mouse_event(*mouse_event)?,
+            Some(handlers::Event::Key(key_event)) => {
+                self.handle_key_event(*key_event)?
+            }
+            Some(handlers::Event::Mouse(mouse_event)) => {
+                self.handle_mouse_event(*mouse_event)?
+            }
             _ => None,
         };
         Ok(action)
@@ -83,8 +93,11 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<Option<Action>>` - An action to be processed or none.
-    fn handle_key_event(&mut self, key: crossterm::KeyEvent) -> Result<Option<handlers::Action>> {
-        let _ = key; // to appease clippy
+    fn handle_key_event(
+        &mut self,
+        key_event: crossterm::KeyEvent,
+    ) -> Result<Option<handlers::Action>> {
+        let _ = key_event; // to appease clippy
         Ok(None)
     }
 
@@ -97,8 +110,11 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<Option<Action>>` - An action to be processed or none.
-    fn handle_mouse_event(&mut self, mouse: crossterm::MouseEvent) -> Result<Option<handlers::Action>> {
-        let _ = mouse; // to appease clippy
+    fn handle_mouse_event(
+        &mut self,
+        mouse_event: crossterm::MouseEvent,
+    ) -> Result<Option<handlers::Action>> {
+        let _ = mouse_event; // to appease clippy
         Ok(None)
     }
 
@@ -111,11 +127,14 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<Option<Action>>` - An action to be processed or none.
-    fn update(&mut self, action: handlers::Action) -> Result<Option<handlers::Action>> {
+    fn update(
+        &mut self,
+        action: handlers::Action,
+    ) -> Result<Option<handlers::Action>> {
         let _ = action; // to appease clippy
         Ok(None)
     }
-    
+
     /// Render the component on the screen. (REQUIRED)
     ///
     /// # Arguments
@@ -126,5 +145,9 @@ pub trait Component {
     /// # Returns
     ///
     /// * `Result<()>` - An Ok result or an error.
-    fn draw(&mut self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) -> Result<()>;
+    fn draw(
+        &mut self,
+        frame: &mut ratatui::Frame,
+        area: ratatui::layout::Rect,
+    ) -> Result<()>;
 }
