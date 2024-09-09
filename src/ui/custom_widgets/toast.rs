@@ -5,22 +5,21 @@
 //! A custom widget for showing toast messages
 //! ---
 
-use std::time;
-
 use ratatui::{layout, style, text, widgets};
 
 use crate::{domain, ui};
 
-pub struct Toast {
-    pub toast: domain::Toast,
-    pub displayed_at: time::Instant,
+pub struct ToastWidget {
+    pub(crate) toast: domain::Toast,
 }
 
-impl widgets::Widget for Toast {
+impl widgets::Widget for ToastWidget {
+    /// [Required] Render the custom widget using the assigned area and terminal buffer
     fn render(self, area: layout::Rect, buf: &mut ratatui::buffer::Buffer){
         // Calculate widget layout area / position
         let top_right = ui::helpers::top_right(40, 4, area);
 
+        // Set the toast style based on the toast kind
         let (toast_title, toast_style) = match self.toast.kind {
             domain::ToastKind::Error => {
                 let toast_style = style::Style::default()
@@ -64,6 +63,7 @@ impl widgets::Widget for Toast {
             .title(toast_title)
             .style(toast_style);
 
+        // Define the paragraph to be rendered
         let paragraph =
             widgets::Paragraph::new(self.toast.message).wrap(widgets::Wrap { trim: true });
         

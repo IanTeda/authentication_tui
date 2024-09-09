@@ -18,9 +18,6 @@ pub struct App {
     /// Actions handler
     actions: crate::handlers::ActionHandler,
 
-    /// Toast message handler
-    // toasts: crate::handlers::ToastHandler,
-
     /// UI components that get plugged in
     pub components: Vec<Box<dyn ui::Component>>,
 }
@@ -35,13 +32,13 @@ impl App {
         let actions = handlers::ActionHandler::default();
 
         // Initiate a new fps component and store it on the heap (Box) not the stack
-        let fps_component = Box::new(ui::FpsCounter::new());
+        let fps_component = Box::new(ui::FpsComponent::new());
 
         // Initiate a new main container (body)
         let container = Box::new(ui::Container::new());
 
         // Initiate a new toast message component
-        let toast = Box::new(ui::Toast::new());
+        let toast = Box::new(ui::ToastComponent::new());
 
         // Built the components vector
         let components: Vec<Box<dyn ui::Component>> = vec![

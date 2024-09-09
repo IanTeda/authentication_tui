@@ -38,7 +38,7 @@ pub enum Error {
     Config(#[from] config::ConfigError),
 
     #[error(transparent)]
-    ActionSend(#[from] tokio::sync::mpsc::error::SendError<handlers::Action>),
+    ActionHandler(#[from] tokio::sync::mpsc::error::SendError<handlers::Action>),
 }
 
 pub fn init(tick_rate: f64, frame_rate: f64) -> Result<()> {

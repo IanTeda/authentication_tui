@@ -16,7 +16,7 @@ use crate::{ui, handlers, prelude::*};
 
 /// Define component state
 #[derive(Debug, Clone, PartialEq)]
-pub struct FpsCounter {
+pub struct FpsComponent {
     /// Time since last tick
     last_tick_update: Instant,
 
@@ -36,14 +36,14 @@ pub struct FpsCounter {
     frames_per_second: f64,
 }
 
-impl Default for FpsCounter {
+impl Default for FpsComponent {
     /// Default FPS Counter instance
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl FpsCounter {
+impl FpsComponent {
     /// New FPS Counter instance
     pub fn new() -> Self {
         Self {
@@ -97,7 +97,7 @@ impl FpsCounter {
     }
 }
 
-impl ui::Component for FpsCounter {
+impl ui::Component for FpsComponent {
     /// Update the state
     fn update(&mut self, action: handlers::Action) -> Result<Option<handlers::Action>> {
         match action {

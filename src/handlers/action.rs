@@ -12,9 +12,7 @@ use tokio::sync::mpsc;
 use crate::{domain, handlers, prelude::*, ui, Terminal};
 
 // TODO: I don't think we need Display derive
-#[derive(
-    Debug, Clone, PartialEq, strum::Display, serde::Serialize, serde::Deserialize,
-)]
+#[derive(Debug, Clone, PartialEq, strum::Display)]
 pub enum Action {
     ClearScreen,
     Error(String),
@@ -27,7 +25,8 @@ pub enum Action {
     Resume,
     Suspend,
     Tick,
-    Toast(domain::Toast)
+    ClearToast,
+    Toast(domain::Toast),
 }
 
 #[derive(Debug)]
@@ -45,10 +44,7 @@ impl Default for ActionHandler {
         // Initiate send receive event channels
         let (sender, receiver) = mpsc::unbounded_channel();
 
-        Self {
-            sender,
-            receiver,
-        }
+        Self { sender, receiver }
     }
 }
 
@@ -57,8 +53,7 @@ impl ActionHandler {
     pub async fn handle_events(
         &mut self,
         terminal: &mut Terminal,
-        #[allow(clippy::ptr_arg)]
-        components: &mut Vec<Box<dyn ui::Component>>, //TODO: Needs more research
+        #[allow(clippy::ptr_arg)] components: &mut Vec<Box<dyn ui::Component>>, //TODO: Needs more research
     ) -> Result<()> {
         // Clone the task sender channel
         let action_sender = self.sender.clone();
@@ -102,10 +97,7 @@ impl ActionHandler {
     }
 
     /// Match a key event to an Action
-    pub fn handle_key_event(
-        &mut self,
-        key_event: crossterm::  KeyEvent,
-    ) -> Action {
+    pub fn handle_key_event(&mut self, key_event: crossterm::KeyEvent) -> Action {
         // Match the key event, returning the appropriate action type
         match key_event.code {
             // crossterm::event::KeyCode::Backspace => todo!(),
