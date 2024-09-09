@@ -5,6 +5,8 @@
         "chrono",
         "colors",
         "crossterm",
+        "Deque",
+        "Gyata",
         "ianteda",
         "libc",
         "lossy",

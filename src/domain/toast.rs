@@ -20,15 +20,11 @@ pub enum ToastKind {
 /// Toast message type structure
 #[derive(Debug, Clone, PartialEq)]
 pub struct Toast {
-    // pub(crate) id: u64,
     /// Define what type of toast message this is. I will change the color.
     pub(crate) kind: ToastKind,
 
     /// Toast message to be shown
     pub(crate) message: String,
-
-    /// Set to true to show the toast message
-    pub(crate) show: bool,
 
     /// Set the instant in time the toast message was shown
     pub(crate) shown_at: time::Instant
@@ -37,16 +33,12 @@ pub struct Toast {
 impl Toast {
     /// Create a new toast instance
     pub fn new(message: String) -> Self {
-        // let id = 1;
         let kind = ToastKind::Notification;
-        let show = true;
         let shown_at = time::Instant::now();
 
         Self {
-            // id,
             kind,
             message,
-            show,
             shown_at,
         }
     }
