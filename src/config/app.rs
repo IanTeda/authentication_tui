@@ -15,7 +15,6 @@ use std::path;
 /// ---
 #[derive(Debug, Clone, PartialEq, serde::Deserialize, serde::Serialize)]
 pub struct AppConfig {
-
     /// The directory to use for storing application data (logs etc.).
     pub data_directory: path::PathBuf,
 
@@ -28,7 +27,6 @@ pub struct AppConfig {
     /// Frame (redraw) of the application refresh in frames per second i.e. number of frames per second
     pub frame_rate: f64,
 }
-
 
 impl Default for AppConfig {
     /// Default settings used to write to file if config file not found

@@ -15,11 +15,11 @@ pub fn top_right(width: u16, height: u16, area: layout::Rect) -> layout::Rect {
         layout::Constraint::Fill(1),
     ])
     .split(area);
-    
+
     layout::Layout::horizontal([
         layout::Constraint::Fill(1),
         layout::Constraint::Length(width),
-        layout::Constraint::Length(1)
+        layout::Constraint::Length(1),
     ])
     .split(toast_layout[1])[1]
 }
@@ -36,7 +36,11 @@ pub fn centered_vert(height: u16, area: layout::Rect) -> layout::Rect {
 }
 
 /// Center rect using up certain percentage of the available rect `r`
-pub fn center_center(percent_x: u16, percent_y: u16, r: layout::Rect) -> layout::Rect {
+pub fn center_center(
+    percent_x: u16,
+    percent_y: u16,
+    r: layout::Rect,
+) -> layout::Rect {
     let popup_layout = layout::Layout::vertical([
         layout::Constraint::Percentage((100 - percent_y) / 2),
         layout::Constraint::Percentage(percent_y),

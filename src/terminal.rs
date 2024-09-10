@@ -7,7 +7,10 @@
 //! so that the keys are not echoed to the user’s screen when pressed and on quitting
 //! restoring the terminal.
 
-use std::{io, ops::{Deref, DerefMut}};
+use std::{
+    io,
+    ops::{Deref, DerefMut},
+};
 
 use crate::{handlers, prelude::*};
 
@@ -62,7 +65,7 @@ impl Terminal {
         self
     }
 
-    /// Enter into terminal backend raw mode and alternate screen buffer. 
+    /// Enter into terminal backend raw mode and alternate screen buffer.
     /// Enable mouse and paste event capture if enabled.
     pub fn enter(&mut self) -> Result<()> {
         // Enable terminal raw mode, which turns off input and output processing by

@@ -10,5 +10,5 @@ pub use action::ActionHandler;
 
 /// Event enum and handler
 mod event;
-pub use event::EventLoopHandler;
 pub use event::Event;
+pub use event::EventLoopHandler;

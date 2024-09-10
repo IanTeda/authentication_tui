@@ -15,8 +15,6 @@ impl Default for App {
     fn default() -> Self {
         let is_running = true;
 
-        Self {
-            is_running,
-        }
+        Self { is_running }
     }
 }

@@ -1,9 +1,9 @@
 //-- ./src/ui/custom_widgets/mod.rs
 
-//! Custom widgets module. 
-//! 
+//! Custom widgets module.
+//!
 //! # Reference
-//! 
+//!
 //! - [Create custom widgets](https://ratatui.rs/recipes/widgets/custom/)
 //! ---
 

@@ -15,7 +15,7 @@ pub struct ToastWidget {
 
 impl widgets::Widget for ToastWidget {
     /// [Required] Render the custom widget using the assigned area and terminal buffer
-    fn render(self, area: layout::Rect, buf: &mut ratatui::buffer::Buffer){
+    fn render(self, area: layout::Rect, buf: &mut ratatui::buffer::Buffer) {
         // Calculate widget layout area / position
         let top_right = ui::helpers::top_right(40, 4, area);
 
@@ -64,9 +64,9 @@ impl widgets::Widget for ToastWidget {
             .style(toast_style);
 
         // Define the paragraph to be rendered
-        let paragraph =
-            widgets::Paragraph::new(self.toast.message).wrap(widgets::Wrap { trim: true });
-        
+        let paragraph = widgets::Paragraph::new(self.toast.message)
+            .wrap(widgets::Wrap { trim: true });
+
         // Clear/reset a certain area to allow overdrawing of toast.
         widgets::Clear.render(top_right, buf);
 

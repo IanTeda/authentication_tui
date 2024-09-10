@@ -41,11 +41,8 @@ impl App {
         let toast = Box::new(ui::ToastComponent::new());
 
         // Built the components vector
-        let components: Vec<Box<dyn ui::Component>> = vec![
-            container, 
-            fps_component, 
-            toast
-        ];
+        let components: Vec<Box<dyn ui::Component>> =
+            vec![container, fps_component, toast];
 
         Ok(Self {
             state,
@@ -59,10 +56,8 @@ impl App {
     pub async fn run(&mut self) -> Result<()> {
         //-- 1. Build the terminal backend
         // Initiate a new backend terminal
-        let mut terminal = Terminal::new(
-            self.config.app.tick_rate, 
-            self.config.app.frame_rate
-        )?;
+        let mut terminal =
+            Terminal::new(self.config.app.tick_rate, self.config.app.frame_rate)?;
 
         // Enter terminal raw mode
         terminal.enter()?;
@@ -80,7 +75,6 @@ impl App {
         }
 
         // Pass the configuration instance into each components
-        // TODO: Do we need this, wouldn't state be better to pass in?
         for component in self.components.iter_mut() {
             component.register_config_handler(self.config.clone())?;
         }
@@ -139,10 +133,9 @@ impl App {
         terminal.draw(|frame| {
             for component in self.components.iter_mut() {
                 if let Err(err) = component.draw(frame, frame.area()) {
-                    let _ = self
-                        .actions
-                        .sender
-                        .send(handlers::Action::Error(format!("Failed to draw: {:?}", err)));
+                    let _ = self.actions.sender.send(handlers::Action::Error(
+                        format!("Failed to draw: {:?}", err),
+                    ));
                 }
             }
         })?;

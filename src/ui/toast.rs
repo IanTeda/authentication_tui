@@ -3,8 +3,8 @@
 // #![allow(unused)] // For beginning only.
 
 //! The toast component
-//! 
-//! 
+//!
+//!
 //! - Diff OSs: https://stackoverflow.com/questions/55583503/is-stdtimeduration-as-precise-as-timeprecise-time-ns-from-time-crate
 //! ---
 
@@ -51,7 +51,7 @@ impl ui::Component for ToastComponent {
             // Do something when we receive a tick action
             handlers::Action::Tick => {
                 //-- Add any logic here that should run every tick interval
-                
+
                 // If we have an optional toast message do something
                 if let Some(ref mut t) = self.toast {
                     // If toast duration is exceeded set option to None, to display
@@ -59,8 +59,8 @@ impl ui::Component for ToastComponent {
                     if t.shown_at.elapsed() > TOAST_DURATION {
                         self.toast = None;
                     }
-                
-                // Else if we have None optional toast and there is something in 
+
+                // Else if we have None optional toast and there is something in
                 // the toast queue pop it into the optional toast
                 } else if let Some(mut t) = self.queue.pop_front() {
                     t.shown_at = time::Instant::now();
@@ -97,14 +97,14 @@ impl ui::Component for ToastComponent {
         key_event: crossterm::KeyEvent,
     ) -> Result<Option<handlers::Action>> {
         let action = match key_event.code {
-            crossterm::KeyCode::Char('t') => {
-                // Build toast instance
-                let toasty = domain::Toast::new("This a toast message".to_string())
-                    .kind(domain::ToastKind::Error);
+            // crossterm::KeyCode::Char('t') => {
+            //     // Build toast instance
+            //     let toasty = domain::Toast::new("This a toast message".to_string())
+            //         .kind(domain::ToastKind::Error);
 
-                // Return action for update
-                handlers::Action::Toast(toasty)
-            }
+            //     // Return action for update
+            //     handlers::Action::Toast(toasty)
+            // }
             crossterm::KeyCode::Esc => handlers::Action::ClearToast,
             _ => handlers::Action::Nil,
         };
@@ -116,9 +116,7 @@ impl ui::Component for ToastComponent {
         // Mutate into the toast option
         // https://stackoverflow.com/questions/27361350/calling-a-method-on-a-value-inside-a-mutable-option
         if let Some(ref mut t) = self.toast {
-            let toast_widget = ui::custom_widgets::ToastWidget { 
-                toast: t.clone(), 
-            };
+            let toast_widget = ui::custom_widgets::ToastWidget { toast: t.clone() };
             frame.render_widget(toast_widget, area)
         }
 

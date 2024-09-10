@@ -1,12 +1,12 @@
 //-- ./src/cli.rs
 
 //! Command line interface module
-//! 
+//!
 //! Parse command line switches and provide help
-//! 
+//!
 //! ---
 
-#[derive(Debug, clap::Parser,)]
+#[derive(Debug, clap::Parser)]
 #[command(author, version = version(), about)]
 pub struct Args {
     /// location of the configuration file

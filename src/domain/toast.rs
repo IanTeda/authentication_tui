@@ -27,7 +27,7 @@ pub struct Toast {
     pub(crate) message: String,
 
     /// Set the instant in time the toast message was shown
-    pub(crate) shown_at: time::Instant
+    pub(crate) shown_at: time::Instant,
 }
 
 impl Toast {

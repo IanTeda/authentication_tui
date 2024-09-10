@@ -3,7 +3,7 @@
 // #![allow(unused)] // For beginning only.
 
 //! Module for mapping crossterm terminal backend events to tui application events
-//! 
+//!
 //! ---
 
 use crossterm::event::{Event as CrosstermEvent, KeyEventKind};

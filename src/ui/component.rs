@@ -7,7 +7,7 @@ use crossterm::event as crossterm;
 use ratatui::layout::Size;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{handlers, prelude::*, Config};
+use crate::{handlers, prelude::*, state::State, Config};
 
 /// `Component` is a trait that represents a visual and interactive element of the user interface.
 ///
@@ -43,7 +43,7 @@ pub trait Component {
     fn register_config_handler(&mut self, config: Config) -> Result<()> {
         let _ = config; // to appease clippy
         Ok(())
-    }
+    }  
 
     /// Initialize the component with a specified area if necessary.
     ///

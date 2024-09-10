@@ -17,8 +17,16 @@ mod custom_widgets;
 mod fps;
 pub use fps::FpsComponent;
 
+/// Footer / status bar
+mod footer;
+pub use footer::FooterComponent;
+
 /// A collection of common ui helper functions
 mod helpers;
+
+/// Home page
+mod home;
+pub use home::HomeComponent;
 
 /// Toast message overlay
 mod toast;
