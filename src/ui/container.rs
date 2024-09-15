@@ -1,6 +1,6 @@
 //-- ./src/ui/container.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! The main UI container component
 //! ---

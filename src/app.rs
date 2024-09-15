@@ -31,18 +31,23 @@ impl App {
         // Construct a default action handler
         let actions = handlers::ActionHandler::default();
 
-        // Initiate a new fps component and store it on the heap (Box) not the stack
-        let fps_component = Box::new(ui::FpsComponent::new());
+        // Initiate a new fps component
+        let fps_component = ui::FpsComponent::new();
 
         // Initiate a new main container (body)
-        let container = Box::new(ui::Container::new());
+        let container = ui::Container::new();
 
         // Initiate a new toast message component
-        let toast = Box::new(ui::ToastComponent::new());
+        let toast = ui::ToastComponent::new();
 
         // Built the components vector
         let components: Vec<Box<dyn ui::Component>> =
-            vec![container, fps_component, toast];
+            vec![
+                // Store components on the heap (Box) not the stack
+                Box::new(container), 
+                Box::new(fps_component), 
+                Box::new(toast)
+            ];
 
         Ok(Self {
             state,
@@ -63,20 +68,17 @@ impl App {
         terminal.enter()?;
 
         //-- 2. Plugin components
-        // Pass the terminal area into each component
         for component in self.components.iter_mut() {
+            // Pass the terminal area into each component
             // Deref of terminal backend needed for size
             component.init(terminal.size()?)?;
-        }
 
-        // Pass the action handler transmit channel into each component
-        for component in self.components.iter_mut() {
+            // Pass the action handler transmit channel into each component
             component.register_action_handler(self.actions.sender.clone())?;
-        }
 
-        // Pass the configuration instance into each components
-        for component in self.components.iter_mut() {
+            // Pass the configuration instance into each components
             component.register_config_handler(self.config.clone())?;
+
         }
 
         //-- 3. Run the main application loop

@@ -7,13 +7,15 @@ use crossterm::event as crossterm;
 use ratatui::layout::Size;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{handlers, prelude::*, state::State, Config};
+use crate::{handlers, prelude::*, Config};
 
 /// `Component` is a trait that represents a visual and interactive element of the user interface.
 ///
 /// Implementers of this trait can be registered with the main application loop and will be able to
 /// receive events, update state, and be rendered on the screen.
 pub trait Component {
+    // type State;
+
     /// Register an action handler that can send actions for processing if necessary.
     ///
     /// # Arguments
@@ -43,7 +45,7 @@ pub trait Component {
     fn register_config_handler(&mut self, config: Config) -> Result<()> {
         let _ = config; // to appease clippy
         Ok(())
-    }  
+    }
 
     /// Initialize the component with a specified area if necessary.
     ///

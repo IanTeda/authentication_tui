@@ -10,6 +10,9 @@ pub use app::App;
 /// Command line argument parser
 pub mod cli;
 
+/// RPC client module
+pub mod client;
+
 /// Configuration file parser
 mod config;
 pub use config::Config;

@@ -1,6 +1,6 @@
 //-- ./src/config/mod.rs
 
-#![allow(unused)] // For development only
+// #![allow(unused)] // For development only
 
 //! Configuration module
 //!
@@ -15,11 +15,15 @@ use crate::cli;
 use crate::prelude::*;
 
 mod app;
+mod backend;
 
 #[derive(Debug, Clone, PartialEq, Default, serde::Deserialize, serde::Serialize)]
 pub struct Config {
-    /// Configure the TUI Application
+    /// TUI Application configuration
     pub app: app::AppConfig,
+
+    /// Backend server configuration
+    pub backend: backend::BackendConfig,
 }
 
 impl Config {
@@ -43,18 +47,18 @@ impl Config {
         };
 
         // Construct config builder
-        let mut builder =
+        let builder =
             config::Config::builder().add_source(config::File::from(config_file));
 
         // If a config file has been parsed to the cli arguments add it as a source
         if !args.config.is_empty() {
             let cli_config = PathBuf::from(args.config);
-            builder.clone().add_source(config::File::from(cli_config));
+            let _ = builder.clone().add_source(config::File::from(cli_config));
         }
 
         // Add environment variables (with a prefix of TUI and '_' as separator).
         // E.g. `TUI__APP_DATA_DIRECTORY=/opt/tui/data would set `app.data_directory`
-        builder.clone().add_source(
+        let _ = builder.clone().add_source(
             config::Environment::with_prefix("TUI")
                 .prefix_separator("__")
                 .separator("_"),

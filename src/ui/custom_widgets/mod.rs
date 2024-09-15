@@ -1,5 +1,7 @@
 //-- ./src/ui/custom_widgets/mod.rs
 
+#![allow(unused)] // For beginning only.
+
 //! Custom widgets module.
 //!
 //! # Reference
@@ -11,3 +13,6 @@
 mod toast;
 /// Custom widget to display a toast message
 pub use toast::ToastWidget;
+
+mod status;
+pub use status::StatusWidget;

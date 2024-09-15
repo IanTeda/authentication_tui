@@ -39,6 +39,15 @@ pub enum Error {
 
     #[error(transparent)]
     ActionHandler(#[from] tokio::sync::mpsc::error::SendError<handlers::Action>),
+
+    #[error(transparent)]
+    TonicTransport(#[from] tonic::transport::Error),
+
+    #[error(transparent)]
+    TonicStatus(#[from] tonic::Status),
+
+    #[error(transparent)]
+    TonicUri(#[from] tonic::codegen::http::uri::InvalidUri)
 }
 
 pub fn init(tick_rate: f64, frame_rate: f64) -> Result<()> {

@@ -18,6 +18,9 @@ args = ["clean"]
 command = "rm"
 args = ["/home/ian/.config/authentication_tui/config.toml"]
 
+[tasks.clear]
+dependencies = ["clean", "clear_config"]
+
 [tasks.build]
 command = "cargo"
 args = ["build"]
