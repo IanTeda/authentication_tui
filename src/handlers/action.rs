@@ -53,7 +53,7 @@ impl ActionHandler {
     pub async fn handle_events(
         &mut self,
         terminal: &mut Terminal,
-        #[allow(clippy::ptr_arg)] components: &mut Vec<Box<dyn ui::Component>>, //TODO: Needs more research
+        #[allow(clippy::ptr_arg)] components: &mut Vec<Box<dyn ui::components::Component>>, //TODO: Needs more research
     ) -> Result<()> {
         // Clone the task sender channel
         let action_sender = self.sender.clone();

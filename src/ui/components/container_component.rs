@@ -11,7 +11,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use crate::{handlers, prelude::*, ui, Config};
 
 #[derive(Default)]
-pub struct Container {
+pub struct ContainerComponent {
     action_tx: Option<UnboundedSender<handlers::Action>>,
     config: Config,
 
@@ -19,10 +19,10 @@ pub struct Container {
     pub components: Vec<Box<dyn ui::Component>>,
 }
 
-impl Container {
+impl ContainerComponent {
     pub fn new() -> Self {
-        let footer_component = ui::FooterComponent::new();
-        let home_component = ui::HomeComponent::new();
+        let footer_component = ui::components::FooterComponent::new();
+        let home_component = ui::components::HomeComponent::new();
         let components: Vec<Box<dyn ui::Component>> =
             vec![Box::new(footer_component), Box::new(home_component)];
 
@@ -33,7 +33,7 @@ impl Container {
     }
 }
 
-impl ui::Component for Container {
+impl ui::Component for ContainerComponent {
     fn register_action_handler(
         &mut self,
         tx: UnboundedSender<handlers::Action>,
@@ -48,14 +48,14 @@ impl ui::Component for Container {
     fn register_config_handler(&mut self, config: Config) -> Result<()> {
         self.config = config.clone();
         for component in self.components.iter_mut() {
-            component.register_config_handler(config.clone());
+            let _ = component.register_config_handler(config.clone());
         }
         Ok(())
     }
 
     fn init(&mut self, area: layout::Size) -> Result<()> {
         for component in self.components.iter_mut() {
-            component.init(area);
+            let _ = component.init(area);
         }
         Ok(())
     }
@@ -74,7 +74,7 @@ impl ui::Component for Container {
             _ => {}
         }
         for component in self.components.iter_mut() {
-            component.update(action.clone());
+            let _ = component.update(action.clone());
         }
         Ok(None)
     }
@@ -89,8 +89,8 @@ impl ui::Component for Container {
             .split(area);
             (split[0], split[1])
         };
-        self.components[1].draw(frame, body_area);
-        self.components[0].draw(frame, footer_area);
+        let _ = self.components[1].draw(frame, body_area);
+        let _ = self.components[0].draw(frame, footer_area);
 
         Ok(())
     }

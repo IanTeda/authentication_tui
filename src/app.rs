@@ -32,13 +32,13 @@ impl App {
         let actions = handlers::ActionHandler::default();
 
         // Initiate a new fps component
-        let fps_component = ui::FpsComponent::new();
+        let fps_component = ui::components::FpsComponent::new();
 
         // Initiate a new main container (body)
-        let container = ui::Container::new();
+        let container = ui::components::ContainerComponent::new();
 
         // Initiate a new toast message component
-        let toast = ui::ToastComponent::new();
+        let toast = ui::components::ToastComponent::new();
 
         // Built the components vector
         let components: Vec<Box<dyn ui::Component>> =
@@ -132,15 +132,17 @@ impl App {
 
     /// Render the terminal user interface
     fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-        terminal.draw(|frame| {
-            for component in self.components.iter_mut() {
-                if let Err(err) = component.draw(frame, frame.area()) {
-                    let _ = self.actions.sender.send(handlers::Action::Error(
-                        format!("Failed to draw: {:?}", err),
-                    ));
-                }
-            }
-        })?;
+        terminal.draw(|frame| ui::layout::render(&mut self.state, frame))?;
+        
+        // terminal.draw(|frame| {
+        //     for component in self.components.iter_mut() {
+        //         if let Err(err) = component.draw(frame, frame.area()) {
+        //             let _ = self.actions.sender.send(handlers::Action::Error(
+        //                 format!("Failed to draw: {:?}", err),
+        //             ));
+        //         }
+        //     }
+        // })?;
 
         Ok(())
     }
