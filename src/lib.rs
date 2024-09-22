@@ -17,6 +17,11 @@ pub mod client;
 mod config;
 pub use config::Config;
 
+pub mod components;
+pub use components::Component;
+
+pub mod custom_widgets;
+
 /// Domain type definitions
 pub mod domain;
 

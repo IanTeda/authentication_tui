@@ -32,9 +32,10 @@ pub struct Toast {
 
 impl Toast {
     /// Create a new toast instance
-    pub fn new(message: String) -> Self {
+    pub fn new(message: impl Into<String>) -> Self {
         let kind = ToastKind::Notification;
         let shown_at = time::Instant::now();
+        let message = message.into();
 
         Self {
             kind,

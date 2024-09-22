@@ -13,7 +13,7 @@ use std::{collections::VecDeque, time};
 use crossterm::event as crossterm;
 use ratatui::prelude::*;
 
-use crate::{domain, handlers, prelude::*, ui};
+use crate::{components, custom_widgets, domain, handlers, prelude::*};
 
 // #[derive(Default)]
 pub struct ToastComponent {
@@ -42,7 +42,7 @@ impl ToastComponent {
 
 const TOAST_DURATION: time::Duration = time::Duration::from_secs(3);
 
-impl ui::Component for ToastComponent {
+impl components::Component for ToastComponent {
     fn update(
         &mut self,
         action: handlers::Action,
@@ -97,14 +97,14 @@ impl ui::Component for ToastComponent {
         key_event: crossterm::KeyEvent,
     ) -> Result<Option<handlers::Action>> {
         let action = match key_event.code {
-            // crossterm::KeyCode::Char('t') => {
-            //     // Build toast instance
-            //     let toasty = domain::Toast::new("This a toast message".to_string())
-            //         .kind(domain::ToastKind::Error);
+            crossterm::KeyCode::Char('t') => {
+                // Build toast instance
+                let toasty = domain::Toast::new("This a toast message")
+                    .kind(domain::ToastKind::Error);
 
-            //     // Return action for update
-            //     handlers::Action::Toast(toasty)
-            // }
+                // Return action for update
+                handlers::Action::Toast(toasty)
+            }
             crossterm::KeyCode::Esc => handlers::Action::ClearToast,
             _ => handlers::Action::Nil,
         };
@@ -116,7 +116,7 @@ impl ui::Component for ToastComponent {
         // Mutate into the toast option
         // https://stackoverflow.com/questions/27361350/calling-a-method-on-a-value-inside-a-mutable-option
         if let Some(ref mut t) = self.toast {
-            let toast_widget = ui::custom_widgets::ToastWidget { toast: t.clone() };
+            let toast_widget = custom_widgets::ToastWidget { toast: t.clone() };
             frame.render_widget(toast_widget, area)
         }
 

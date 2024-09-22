@@ -1,6 +1,6 @@
 //-- ./src/ui/layout.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! The main TUI Layout module
 //! ---
@@ -8,19 +8,18 @@
 use ratatui::{layout, widgets};
 
 use crate::state;
-use crate::ui::custom_widgets;
 
 pub fn render(state: &mut state::State, frame: &mut ratatui::Frame) {
     // Get the terminal window area
-    let container = frame.area();
+    let terminal_area = frame.area();
 
-    // Split the terminal window (container) into body and footer rectangles
+    // Split the terminal window into a body and a footer rectangle
     let (body, footer) = {
         let split = layout::Layout::vertical([
             layout::Constraint::Min(6),    // body
             layout::Constraint::Length(1), //footer
         ])
-        .split(container);
+        .split(terminal_area);
         (split[0], split[1])
     };
 
@@ -46,6 +45,6 @@ pub fn render(state: &mut state::State, frame: &mut ratatui::Frame) {
         footer_left,
     );
 
-    let status_widget = custom_widgets::StatusWidget::init(state.backend.is_online);
-    frame.render_widget(status_widget, status_area);
+    // let status_widget = custom_widgets::StatusWidget::init(state.backend.is_online);
+    // frame.render_widget(status_widget, status_area);
 }

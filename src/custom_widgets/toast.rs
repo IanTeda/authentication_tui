@@ -13,6 +13,14 @@ pub struct ToastWidget {
     pub(crate) toast: domain::Toast,
 }
 
+impl ToastWidget {
+    pub fn init(toast: domain::Toast) -> Self {
+        Self {
+            toast
+        }
+    }
+}
+
 impl widgets::Widget for ToastWidget {
     /// [Required] Render the custom widget using the assigned area and terminal buffer
     fn render(self, area: layout::Rect, buf: &mut ratatui::buffer::Buffer) {

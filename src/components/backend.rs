@@ -1,6 +1,6 @@
 //-- ./src/ui/container.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! The main UI container component
 //! ---
@@ -8,21 +8,21 @@
 use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{handlers, prelude::*, ui, Config};
+use crate::{components, handlers, prelude::*, Config};
 
 #[derive(Default)]
-pub struct HomeComponent {
+pub struct BackendComponent {
     command_tx: Option<UnboundedSender<handlers::Action>>,
     config: Config,
 }
 
-impl HomeComponent {
+impl BackendComponent {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl ui::Component for HomeComponent {
+impl components::Component for BackendComponent {
     fn register_action_handler(
         &mut self,
         tx: UnboundedSender<handlers::Action>,
@@ -53,12 +53,6 @@ impl ui::Component for HomeComponent {
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
-        frame.render_widget(
-            widgets::Paragraph::new("Home Page! (press 'q' to quit)")
-                .white()
-                .on_blue(),
-            area,
-        );
         Ok(())
     }
 }

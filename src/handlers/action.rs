@@ -9,11 +9,14 @@
 use crossterm::event as crossterm;
 use tokio::sync::mpsc;
 
-use crate::{domain, handlers, prelude::*, ui, Terminal};
+use crate::{components, domain, handlers, prelude::*, Terminal};
 
 // TODO: I don't think we need Display derive
+// TODO: Move this to a domain
 #[derive(Debug, Clone, PartialEq, strum::Display)]
 pub enum Action {
+    /// Ping backend server status.
+    UpdateBackendStatus,
     ClearScreen,
     Error(String),
     Help,
@@ -53,7 +56,7 @@ impl ActionHandler {
     pub async fn handle_events(
         &mut self,
         terminal: &mut Terminal,
-        #[allow(clippy::ptr_arg)] components: &mut Vec<Box<dyn ui::components::Component>>, //TODO: Needs more research
+        #[allow(clippy::ptr_arg)] components: &mut Vec<Box<dyn components::Component>>, //TODO: Needs more research
     ) -> Result<()> {
         // Clone the task sender channel
         let action_sender = self.sender.clone();

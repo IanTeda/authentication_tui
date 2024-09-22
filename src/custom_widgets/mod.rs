@@ -9,6 +9,8 @@
 //! - [Create custom widgets](https://ratatui.rs/recipes/widgets/custom/)
 //! ---
 
+mod fps;
+pub use fps::FpsWidget;
 /// Display a toast message
 mod toast;
 /// Custom widget to display a toast message

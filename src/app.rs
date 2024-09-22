@@ -1,11 +1,11 @@
 //-- ./src/app.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! The TUI application module
 //! ---
 
-use crate::{handlers, prelude::*, state, ui, Terminal};
+use crate::{components, handlers, prelude::*, state, Terminal};
 
 // #[derive(Debug)]
 pub struct App {
@@ -19,7 +19,7 @@ pub struct App {
     actions: crate::handlers::ActionHandler,
 
     /// UI components that get plugged in
-    pub components: Vec<Box<dyn ui::Component>>,
+    pub components: Vec<Box<dyn components::Component>>,
 }
 
 impl App {
@@ -32,22 +32,27 @@ impl App {
         let actions = handlers::ActionHandler::default();
 
         // Initiate a new fps component
-        let fps_component = ui::components::FpsComponent::new();
+        let fps_component = components::FpsComponent::new();
 
         // Initiate a new main container (body)
-        let container = ui::components::ContainerComponent::new();
+        // let container = components::ContainerComponent::new();
 
         // Initiate a new toast message component
-        let toast = ui::components::ToastComponent::new();
+        let toast_component = components::ToastComponent::new();
+
+        let backend_component = components::BackendComponent::new();
+
+        let home_component = components::HomeComponent::new();
 
         // Built the components vector
-        let components: Vec<Box<dyn ui::Component>> =
-            vec![
-                // Store components on the heap (Box) not the stack
-                Box::new(container), 
-                Box::new(fps_component), 
-                Box::new(toast)
-            ];
+        let components: Vec<Box<dyn components::Component>> = vec![
+            // Store components on the heap (Box) not the stack
+            // Box::new(container),
+            Box::new(fps_component),
+            Box::new(toast_component),
+            Box::new(backend_component),
+            Box::new(home_component),
+        ];
 
         Ok(Self {
             state,
@@ -78,7 +83,6 @@ impl App {
 
             // Pass the configuration instance into each components
             component.register_config_handler(self.config.clone())?;
-
         }
 
         //-- 3. Run the main application loop
@@ -132,17 +136,17 @@ impl App {
 
     /// Render the terminal user interface
     fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-        terminal.draw(|frame| ui::layout::render(&mut self.state, frame))?;
-        
-        // terminal.draw(|frame| {
-        //     for component in self.components.iter_mut() {
-        //         if let Err(err) = component.draw(frame, frame.area()) {
-        //             let _ = self.actions.sender.send(handlers::Action::Error(
-        //                 format!("Failed to draw: {:?}", err),
-        //             ));
-        //         }
-        //     }
-        // })?;
+        // terminal.draw(|frame| ui::layout::render(&mut self.state, frame))?;
+
+        terminal.draw(|frame| {
+            for component in self.components.iter_mut() {
+                if let Err(err) = component.draw(frame, frame.area()) {
+                    let _ = self.actions.sender.send(handlers::Action::Error(
+                        format!("Failed to draw: {:?}", err),
+                    ));
+                }
+            }
+        })?;
 
         Ok(())
     }

@@ -1,14 +1,15 @@
 //-- ./src/ui/container.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! The main UI container component
 //! ---
 
 use ratatui::prelude::*;
 use tokio::sync::mpsc::UnboundedSender;
+use crossterm::event as crossterm;
 
-use crate::{handlers, prelude::*, ui, Config};
+use crate::{components, domain, handlers, prelude::*, ui, Config};
 
 #[derive(Default)]
 pub struct ContainerComponent {
@@ -16,14 +17,14 @@ pub struct ContainerComponent {
     config: Config,
 
     /// UI components that get plugged in
-    pub components: Vec<Box<dyn ui::Component>>,
+    pub components: Vec<Box<dyn components::Component>>,
 }
 
 impl ContainerComponent {
     pub fn new() -> Self {
-        let footer_component = ui::components::FooterComponent::new();
-        let home_component = ui::components::HomeComponent::new();
-        let components: Vec<Box<dyn ui::Component>> =
+        let footer_component = components::FooterComponent::new();
+        let home_component = components::HomeComponent::new();
+        let components: Vec<Box<dyn components::Component>> =
             vec![Box::new(footer_component), Box::new(home_component)];
 
         Self {
@@ -33,7 +34,7 @@ impl ContainerComponent {
     }
 }
 
-impl ui::Component for ContainerComponent {
+impl components::Component for ContainerComponent {
     fn register_action_handler(
         &mut self,
         tx: UnboundedSender<handlers::Action>,
@@ -58,6 +59,27 @@ impl ui::Component for ContainerComponent {
             let _ = component.init(area);
         }
         Ok(())
+    }
+
+    fn handle_key_event(
+        &mut self,
+        key_event: crossterm::KeyEvent,
+    ) -> Result<Option<handlers::Action>> {
+        
+
+        let action = match key_event.code {
+            crossterm::KeyCode::Char('g') => {
+                // Build toast instance
+                let toasty = domain::Toast::new("This a toast message")
+                    .kind(domain::ToastKind::Error);
+
+                // Return action for update
+                handlers::Action::Toast(toasty)
+            }
+            _ => handlers::Action::Nil,
+        };
+
+        Ok(Some(action))
     }
 
     fn update(

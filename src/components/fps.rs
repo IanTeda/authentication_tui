@@ -12,7 +12,7 @@ use ratatui::{
 };
 use std::time::Instant;
 
-use crate::{handlers, prelude::*, ui};
+use crate::{components, handlers, prelude::*};
 
 /// Define component state
 #[derive(Debug, Clone, PartialEq)]
@@ -97,7 +97,7 @@ impl FpsComponent {
     }
 }
 
-impl ui::Component for FpsComponent {
+impl components::Component for FpsComponent {
     /// Update the state
     fn update(
         &mut self,
