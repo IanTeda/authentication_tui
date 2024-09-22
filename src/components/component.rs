@@ -7,7 +7,7 @@ use crossterm::event as crossterm;
 use ratatui::layout::Size;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{handlers, prelude::*, Config};
+use crate::{domain, handlers, prelude::*, Config};
 
 /// `Component` is a trait that represents a visual and interactive element of the user interface.
 ///
@@ -27,7 +27,7 @@ pub trait Component {
     /// * `Result<()>` - An Ok result or an error.
     fn register_action_handler(
         &mut self,
-        action_tx: UnboundedSender<handlers::Action>,
+        action_tx: UnboundedSender<domain::Action>,
     ) -> Result<()> {
         let _ = action_tx; // to appease clippy
         Ok(())
@@ -73,7 +73,7 @@ pub trait Component {
     fn handle_events(
         &mut self,
         event: Option<&handlers::Event>,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         let action = match event {
             Some(handlers::Event::Key(key_event)) => {
                 self.handle_key_event(*key_event)?
@@ -98,7 +98,7 @@ pub trait Component {
     fn handle_key_event(
         &mut self,
         key_event: crossterm::KeyEvent,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         let _ = key_event; // to appease clippy
         Ok(None)
     }
@@ -115,7 +115,7 @@ pub trait Component {
     fn handle_mouse_event(
         &mut self,
         mouse_event: crossterm::MouseEvent,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         let _ = mouse_event; // to appease clippy
         Ok(None)
     }
@@ -131,8 +131,8 @@ pub trait Component {
     /// * `Result<Option<Action>>` - An action to be processed or none.
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         let _ = action; // to appease clippy
         Ok(None)
     }

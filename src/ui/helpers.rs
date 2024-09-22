@@ -55,3 +55,29 @@ pub fn center_center(
     ])
     .split(popup_layout[1])[1]
 }
+
+pub fn body(area: layout::Rect) -> layout::Rect {
+    let (body_area, footer_area) = {
+        let split = layout::Layout::vertical([
+            layout::Constraint::Min(6),    // body
+            layout::Constraint::Length(1), //footer
+        ])
+        .split(area);
+        (split[0], split[1])
+    };
+    
+    body_area
+}
+
+pub fn footer(area: layout::Rect) -> layout::Rect {
+    let (body_area, footer_area) = {
+        let split = layout::Layout::vertical([
+            layout::Constraint::Min(6),    // body
+            layout::Constraint::Length(1), //footer
+        ])
+        .split(area);
+        (split[0], split[1])
+    };
+    
+    footer_area
+}

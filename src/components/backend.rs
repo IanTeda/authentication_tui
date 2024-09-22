@@ -8,11 +8,11 @@
 use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{components, handlers, prelude::*, Config};
+use crate::{components, domain, handlers, prelude::*, Config};
 
 #[derive(Default)]
 pub struct BackendComponent {
-    command_tx: Option<UnboundedSender<handlers::Action>>,
+    command_tx: Option<UnboundedSender<domain::Action>>,
     config: Config,
 }
 
@@ -25,7 +25,7 @@ impl BackendComponent {
 impl components::Component for BackendComponent {
     fn register_action_handler(
         &mut self,
-        tx: UnboundedSender<handlers::Action>,
+        tx: UnboundedSender<domain::Action>,
     ) -> Result<()> {
         self.command_tx = Some(tx);
         Ok(())
@@ -38,13 +38,13 @@ impl components::Component for BackendComponent {
 
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
-            handlers::Action::Tick => {
+            domain::Action::Tick => {
                 // add any logic here that should run on every tick
             }
-            handlers::Action::Render => {
+            domain::Action::Render => {
                 // add any logic here that should run on every render
             }
             _ => {}

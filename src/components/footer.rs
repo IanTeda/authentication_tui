@@ -11,15 +11,12 @@ use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
 
 use crate::{
-    components, custom_widgets,
-    domain,
-    handlers,
-    prelude::*, Config,
+    components, custom_widgets, domain, handlers, prelude::*, ui, Config
 };
 
 #[derive(Default)]
 pub struct FooterComponent {
-    command_tx: Option<UnboundedSender<handlers::Action>>,
+    command_tx: Option<UnboundedSender<domain::Action>>,
     config: Config,
     backend_status: bool,
 }
@@ -40,7 +37,7 @@ impl FooterComponent {
 impl components::Component for FooterComponent {
     // fn register_action_handler(
     //     &mut self,
-    //     tx: UnboundedSender<handlers::Action>,
+    //     tx: UnboundedSender<domain::Action>,
     // ) -> Result<()> {
     //     self.command_tx = Some(tx);
     //     Ok(())
@@ -53,20 +50,20 @@ impl components::Component for FooterComponent {
 
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
-            handlers::Action::Tick => {
+            domain::Action::Tick => {
                 // add any logic here that should run on every tick
             }
-            handlers::Action::Render => {
+            domain::Action::Render => {
                 // add any logic here that should run on every render
             }
-            handlers::Action::UpdateBackendStatus => {
+            domain::Action::UpdateBackendStatus => {
                 self.backend_status = true;
                 // self.update_backend_status();
                 // let toast = domain::Toast::new("Backend status updated").kind(domain::ToastKind::Notification);
-                // Some(handlers::Action::Toast(toast))
+                // Some(domain::Action::Toast(toast))
             }
             _ => {}
         }
@@ -76,7 +73,7 @@ impl components::Component for FooterComponent {
     fn handle_key_event(
         &mut self,
         key_event: crossterm::KeyEvent,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         let action = match key_event.code {
             crossterm::KeyCode::Char('r') => {
                 // Build toast instance
@@ -84,23 +81,25 @@ impl components::Component for FooterComponent {
                     .kind(domain::ToastKind::Error);
 
                 // Return action for update
-                handlers::Action::Toast(toasty)
+                domain::Action::Toast(toasty)
             }
-            crossterm::KeyCode::Esc => handlers::Action::ClearToast,
-            _ => handlers::Action::Nil,
+            crossterm::KeyCode::Esc => domain::Action::ClearToast,
+            _ => domain::Action::Nil,
         };
 
         Ok(Some(action))
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+        let footer_area = ui::helpers::footer(area);
+
         // Split up the footer rectangle
         let (footer_left, status_area) = {
             let split = layout::Layout::horizontal([
                 layout::Constraint::Min(24),    // Left
                 layout::Constraint::Length(12), // Right
             ])
-            .split(area);
+            .split(footer_area);
             (split[0], split[1])
         };
 

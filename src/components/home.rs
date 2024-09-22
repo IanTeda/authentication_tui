@@ -8,11 +8,11 @@
 use ratatui::{prelude::*, widgets};
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{components, handlers, prelude::*, Config};
+use crate::{components, domain, prelude::*, ui, Config};
 
 #[derive(Default)]
 pub struct HomeComponent {
-    command_tx: Option<UnboundedSender<handlers::Action>>,
+    command_tx: Option<UnboundedSender<domain::Action>>,
     config: Config,
 }
 
@@ -25,7 +25,7 @@ impl HomeComponent {
 impl components::Component for HomeComponent {
     fn register_action_handler(
         &mut self,
-        tx: UnboundedSender<handlers::Action>,
+        tx: UnboundedSender<domain::Action>,
     ) -> Result<()> {
         self.command_tx = Some(tx);
         Ok(())
@@ -38,13 +38,13 @@ impl components::Component for HomeComponent {
 
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
-            handlers::Action::Tick => {
+            domain::Action::Tick => {
                 // add any logic here that should run on every tick
             }
-            handlers::Action::Render => {
+            domain::Action::Render => {
                 // add any logic here that should run on every render
             }
             _ => {}
@@ -53,11 +53,12 @@ impl components::Component for HomeComponent {
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+        let body_area = ui::helpers::body(area);
         frame.render_widget(
             widgets::Paragraph::new("Home Page! (press 'q' to quit)")
                 .white()
                 .on_blue(),
-            area,
+            body_area,
         );
         Ok(())
     }

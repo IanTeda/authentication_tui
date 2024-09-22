@@ -3,6 +3,9 @@
 //! Application domain types
 //! ---
 
+mod action;
+pub use action::Action;
+
 /// Toast message type module
 mod toast;
 /// Toast message type instance

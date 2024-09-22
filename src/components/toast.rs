@@ -13,7 +13,7 @@ use std::{collections::VecDeque, time};
 use crossterm::event as crossterm;
 use ratatui::prelude::*;
 
-use crate::{components, custom_widgets, domain, handlers, prelude::*};
+use crate::{components, custom_widgets, domain, prelude::*};
 
 // #[derive(Default)]
 pub struct ToastComponent {
@@ -45,11 +45,11 @@ const TOAST_DURATION: time::Duration = time::Duration::from_secs(3);
 impl components::Component for ToastComponent {
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
             // Do something when we receive a tick action
-            handlers::Action::Tick => {
+            domain::Action::Tick => {
                 //-- Add any logic here that should run every tick interval
 
                 // If we have an optional toast message do something
@@ -69,18 +69,18 @@ impl components::Component for ToastComponent {
             }
 
             // Do something when we receive a render action
-            handlers::Action::Render => {
+            domain::Action::Render => {
                 //-- Add any logic here that should run on every render interval
             }
 
             // Do something when we receive a toast action
-            handlers::Action::Toast(toast) => {
+            domain::Action::Toast(toast) => {
                 // Add toast message to queue
                 self.queue.push_back(toast);
             }
 
             // Do something when we receive a clear toast action
-            handlers::Action::ClearToast => {
+            domain::Action::ClearToast => {
                 // Set the optional toast to None
                 self.toast = None;
             }
@@ -95,7 +95,7 @@ impl components::Component for ToastComponent {
     fn handle_key_event(
         &mut self,
         key_event: crossterm::KeyEvent,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         let action = match key_event.code {
             crossterm::KeyCode::Char('t') => {
                 // Build toast instance
@@ -103,10 +103,10 @@ impl components::Component for ToastComponent {
                     .kind(domain::ToastKind::Error);
 
                 // Return action for update
-                handlers::Action::Toast(toasty)
+                domain::Action::Toast(toasty)
             }
-            crossterm::KeyCode::Esc => handlers::Action::ClearToast,
-            _ => handlers::Action::Nil,
+            crossterm::KeyCode::Esc => domain::Action::ClearToast,
+            _ => domain::Action::Nil,
         };
 
         Ok(Some(action))

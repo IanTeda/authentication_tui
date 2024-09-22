@@ -12,7 +12,7 @@ use ratatui::{
 };
 use std::time::Instant;
 
-use crate::{components, handlers, prelude::*};
+use crate::{components, domain, prelude::*};
 
 /// Define component state
 #[derive(Debug, Clone, PartialEq)]
@@ -101,11 +101,11 @@ impl components::Component for FpsComponent {
     /// Update the state
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
-            handlers::Action::Tick => self.app_tick_rate()?,
-            handlers::Action::Render => self.app_frame_rate()?,
+            domain::Action::Tick => self.app_tick_rate()?,
+            domain::Action::Render => self.app_frame_rate()?,
             _ => {}
         };
         Ok(None)

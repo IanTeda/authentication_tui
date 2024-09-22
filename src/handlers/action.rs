@@ -11,34 +11,34 @@ use tokio::sync::mpsc;
 
 use crate::{components, domain, handlers, prelude::*, Terminal};
 
-// TODO: I don't think we need Display derive
-// TODO: Move this to a domain
-#[derive(Debug, Clone, PartialEq, strum::Display)]
-pub enum Action {
-    /// Ping backend server status.
-    UpdateBackendStatus,
-    ClearScreen,
-    Error(String),
-    Help,
-    Nil,
-    Paste(String),
-    Quit,
-    Render,
-    Resize(u16, u16),
-    Resume,
-    Suspend,
-    Tick,
-    ClearToast,
-    Toast(domain::Toast),
-}
+// // TODO: I don't think we need Display derive
+// // TODO: Move this to a domain
+// #[derive(Debug, Clone, PartialEq, strum::Display)]
+// pub enum Action {
+//     /// Ping backend server status.
+//     UpdateBackendStatus,
+//     ClearScreen,
+//     Error(String),
+//     Help,
+//     Nil,
+//     Paste(String),
+//     Quit,
+//     Render,
+//     Resize(u16, u16),
+//     Resume,
+//     Suspend,
+//     Tick,
+//     ClearToast,
+//     Toast(domain::Toast),
+// }
 
 #[derive(Debug)]
 pub struct ActionHandler {
     /// Action sender channel.
-    pub sender: mpsc::UnboundedSender<Action>,
+    pub sender: mpsc::UnboundedSender<domain::Action>,
 
     /// Action receiver channel.
-    pub receiver: mpsc::UnboundedReceiver<Action>,
+    pub receiver: mpsc::UnboundedReceiver<domain::Action>,
 }
 
 impl Default for ActionHandler {
@@ -73,18 +73,18 @@ impl ActionHandler {
         let action = match event {
             // crate::handlers::event::Event::Closed => todo!(),
             // handlers::Event::Error => Action::Error,
-            handlers::Event::FocusGained => Action::Resume,
-            handlers::Event::FocusLost => Action::Resume,
+            handlers::Event::FocusGained => domain::Action::Resume,
+            handlers::Event::FocusLost => domain::Action::Resume,
             // crate::handlers::event::Event::Init => todo!(),
             handlers::Event::Key(key) => self.handle_key_event(key),
             // crate::handlers::event::Event::Mouse(_) => todo!(),
-            handlers::Event::Paste(s) => Action::Paste(s),
-            handlers::Event::Quit => Action::Quit,
-            handlers::Event::Render => Action::Render,
-            handlers::Event::Resize(x, y) => Action::Resize(x, y),
-            handlers::Event::Tick => Action::Tick,
+            handlers::Event::Paste(s) => domain::Action::Paste(s),
+            handlers::Event::Quit => domain::Action::Quit,
+            handlers::Event::Render => domain::Action::Render,
+            handlers::Event::Resize(x, y) => domain::Action::Resize(x, y),
+            handlers::Event::Tick => domain::Action::Tick,
             // Every other event to Nil
-            _ => Action::Nil,
+            _ => domain::Action::Nil,
         };
 
         // Send action to the que
@@ -100,7 +100,7 @@ impl ActionHandler {
     }
 
     /// Match a key event to an Action
-    pub fn handle_key_event(&mut self, key_event: crossterm::KeyEvent) -> Action {
+    pub fn handle_key_event(&mut self, key_event: crossterm::KeyEvent) -> domain::Action {
         // Match the key event, returning the appropriate action type
         match key_event.code {
             // crossterm::event::KeyCode::Backspace => todo!(),
@@ -130,8 +130,8 @@ impl ActionHandler {
             // crossterm::event::KeyCode::KeypadBegin => todo!(),
             // crossterm::event::KeyCode::Media(_) => todo!(),
             // crossterm::event::KeyCode::Modifier(_) => todo!(),
-            crossterm::KeyCode::Char('q') => Action::Quit,
-            _ => Action::Nil,
+            crossterm::KeyCode::Char('q') => domain::Action::Quit,
+            _ => domain::Action::Nil,
         }
     }
 
@@ -140,7 +140,7 @@ impl ActionHandler {
         let action_sender = self.sender.clone();
 
         // Build the toast action
-        let action = Action::Toast(toast);
+        let action = domain::Action::Toast(toast);
 
         // Send action to the que
         action_sender.send(action)?;
@@ -149,7 +149,7 @@ impl ActionHandler {
     }
 
     /// Get the next Action in the que.
-    pub async fn next(&mut self) -> Option<Action> {
+    pub async fn next(&mut self) -> Option<domain::Action> {
         self.receiver.recv().await
     }
 }

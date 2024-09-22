@@ -5,7 +5,7 @@
 //! The TUI application module
 //! ---
 
-use crate::{components, handlers, prelude::*, state, Terminal};
+use crate::{components, domain, handlers, prelude::*, state, Terminal};
 
 // #[derive(Debug)]
 pub struct App {
@@ -34,9 +34,6 @@ impl App {
         // Initiate a new fps component
         let fps_component = components::FpsComponent::new();
 
-        // Initiate a new main container (body)
-        // let container = components::ContainerComponent::new();
-
         // Initiate a new toast message component
         let toast_component = components::ToastComponent::new();
 
@@ -44,14 +41,16 @@ impl App {
 
         let home_component = components::HomeComponent::new();
 
+        let footer_component = components::FooterComponent::new();
+
         // Built the components vector
         let components: Vec<Box<dyn components::Component>> = vec![
             // Store components on the heap (Box) not the stack
-            // Box::new(container),
             Box::new(fps_component),
             Box::new(toast_component),
             Box::new(backend_component),
             Box::new(home_component),
+            Box::new(footer_component),
         ];
 
         Ok(Self {
@@ -107,7 +106,7 @@ impl App {
     async fn update(&mut self, terminal: &mut Terminal) -> Result<()> {
         // Loop through all actions in the que.
         while let Ok(action) = self.actions.receiver.try_recv() {
-            if action != handlers::Action::Tick && action != handlers::Action::Render
+            if action != domain::Action::Tick && action != domain::Action::Render
             {
                 tracing::debug!("{action:?}");
             }
@@ -115,12 +114,12 @@ impl App {
                 // Action::Tick => {
                 //     self.last_tick_key_events.drain(..);
                 // }
-                handlers::Action::Quit => self.state.app.is_running = false,
+                domain::Action::Quit => self.state.app.is_running = false,
                 // Action::Suspend => self.should_suspend = true,
                 // Action::Resume => self.should_suspend = false,
                 // Action::ClearScreen => tui.terminal.clear()?,
                 // Action::Resize(w, h) => self.handle_resize(tui, w, h)?,
-                handlers::Action::Render => self.render(terminal)?,
+                domain::Action::Render => self.render(terminal)?,
                 _ => {}
             }
 
@@ -141,7 +140,7 @@ impl App {
         terminal.draw(|frame| {
             for component in self.components.iter_mut() {
                 if let Err(err) = component.draw(frame, frame.area()) {
-                    let _ = self.actions.sender.send(handlers::Action::Error(
+                    let _ = self.actions.sender.send(domain::Action::Error(
                         format!("Failed to draw: {:?}", err),
                     ));
                 }

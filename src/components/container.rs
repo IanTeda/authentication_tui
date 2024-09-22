@@ -13,7 +13,7 @@ use crate::{components, domain, handlers, prelude::*, ui, Config};
 
 #[derive(Default)]
 pub struct ContainerComponent {
-    action_tx: Option<UnboundedSender<handlers::Action>>,
+    action_tx: Option<UnboundedSender<domain::Action>>,
     config: Config,
 
     /// UI components that get plugged in
@@ -37,7 +37,7 @@ impl ContainerComponent {
 impl components::Component for ContainerComponent {
     fn register_action_handler(
         &mut self,
-        tx: UnboundedSender<handlers::Action>,
+        tx: UnboundedSender<domain::Action>,
     ) -> Result<()> {
         self.action_tx = Some(tx.clone());
         for component in self.components.iter_mut() {
@@ -64,7 +64,7 @@ impl components::Component for ContainerComponent {
     fn handle_key_event(
         &mut self,
         key_event: crossterm::KeyEvent,
-    ) -> Result<Option<handlers::Action>> {
+    ) -> Result<Option<domain::Action>> {
         
 
         let action = match key_event.code {
@@ -74,9 +74,9 @@ impl components::Component for ContainerComponent {
                     .kind(domain::ToastKind::Error);
 
                 // Return action for update
-                handlers::Action::Toast(toasty)
+                domain::Action::Toast(toasty)
             }
-            _ => handlers::Action::Nil,
+            _ => domain::Action::Nil,
         };
 
         Ok(Some(action))
@@ -84,13 +84,13 @@ impl components::Component for ContainerComponent {
 
     fn update(
         &mut self,
-        action: handlers::Action,
-    ) -> Result<Option<handlers::Action>> {
+        action: domain::Action,
+    ) -> Result<Option<domain::Action>> {
         match action {
-            handlers::Action::Tick => {
+            domain::Action::Tick => {
                 // add any logic here that should run on every tick
             }
-            handlers::Action::Render => {
+            domain::Action::Render => {
                 // add any logic here that should run on every render
             }
             _ => {}
