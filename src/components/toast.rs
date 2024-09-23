@@ -91,7 +91,6 @@ impl components::Component for ToastComponent {
         Ok(None)
     }
 
-    //TODO: Return doesn't need to be an option if you match all cases
     fn handle_key_event(
         &mut self,
         key_event: crossterm::KeyEvent,

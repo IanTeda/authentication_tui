@@ -1,18 +1,24 @@
 //-- ./src/ui/custom_widgets/status.rs
 
-//! Backend status custom widget for the footer
+// #![allow(unused)] // For beginning only.
+
+//! Custom widget for the Authentication backend status in the footer
 //! ---
 
 use ratatui::{layout, style, text, widgets};
 
+use crate::domain;
+
 /// Footer status widget
+#[derive(Debug, PartialEq, Default)]
 pub struct StatusWidget {
-    is_online: bool,
+    backend_status: domain::BackendStatus,
 }
 
 impl StatusWidget {
-    pub fn init(is_online: bool) -> Self {
-        Self { is_online }
+    /// Initiate a new status widget
+    pub fn init(backend_status: domain::BackendStatus) -> Self {
+        Self { backend_status }
     }
 }
 
@@ -20,19 +26,26 @@ impl widgets::Widget for StatusWidget {
     /// [Required] Render the custom widget using the assigned area and terminal buffer
     fn render(self, area: layout::Rect, buf: &mut ratatui::buffer::Buffer) {
         // Set backend server status and style
-        let (status, style) = match self.is_online {
-            true => {
-                let status = "Online";
+        let (status, style) = match self.backend_status {
+            domain::BackendStatus::Offline => {
+                let status = "Offline";
                 let style = style::Style::default()
                     .fg(style::Color::LightGreen)
                     // .bg(style::Color::Green)
                     .add_modifier(style::Modifier::BOLD);
                 (status, style)
             }
-            false => {
-                let status: &str = "Offline";
+            domain::BackendStatus::Online => {
+                let status = "Online";
                 let style = style::Style::default()
-                    .fg(style::Color::LightRed)
+                    .fg(style::Color::LightGreen)
+                    .add_modifier(style::Modifier::BOLD);
+                (status, style)
+            }
+            domain::BackendStatus::LoggedIn => {
+                let status = "Logged In";
+                let style = style::Style::default()
+                    .fg(style::Color::Green)
                     .add_modifier(style::Modifier::BOLD);
                 (status, style)
             }

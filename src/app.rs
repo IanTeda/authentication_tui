@@ -1,6 +1,6 @@
 //-- ./src/app.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! The TUI application module
 //! ---
@@ -10,6 +10,7 @@ use crate::{components, domain, handlers, prelude::*, state, Terminal};
 // #[derive(Debug)]
 pub struct App {
     /// Application state
+    // TODO: Change to AppState
     state: state::State,
 
     /// Application configuration

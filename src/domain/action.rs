@@ -1,9 +1,10 @@
-use super::Toast;
+use super::{Toast, BackendStatus};
 
 #[derive(Debug, Clone, PartialEq, strum::Display)]
 pub enum Action {
     /// Ping backend server status.
-    UpdateBackendStatus,
+    BackendStatusUpdate,
+    BackendStatus(BackendStatus),
     ClearScreen,
     Error(String),
     Help,

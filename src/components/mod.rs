@@ -1,11 +1,8 @@
 // #![allow(unused)] // For beginning only.
 
+/// Manage the backend connection, login and tokens
 mod backend;
 pub use backend::BackendComponent;
-
-/// The main container
-mod container;
-pub use container::ContainerComponent;
 
 /// Component trait
 mod component;

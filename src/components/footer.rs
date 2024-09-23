@@ -1,93 +1,31 @@
 //-- ./src/ui/container.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! The main UI container component
 //! ---
 
-
-use crossterm::event as crossterm;
 use ratatui::{prelude::*, widgets};
-use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{
-    components, custom_widgets, domain, handlers, prelude::*, ui, Config
-};
+use crate::{components, custom_widgets, domain, prelude::*, ui};
 
 #[derive(Default)]
 pub struct FooterComponent {
-    command_tx: Option<UnboundedSender<domain::Action>>,
-    config: Config,
-    backend_status: bool,
+    backend_status: domain::BackendStatus,
 }
 
 impl FooterComponent {
     pub fn new() -> Self {
         Self::default()
     }
-
-    pub fn update_backend_status(&mut self) -> Result<()> {
-        let status = true;
-        self.backend_status = status;
-
-        Ok(())
-    }
 }
 
 impl components::Component for FooterComponent {
-    // fn register_action_handler(
-    //     &mut self,
-    //     tx: UnboundedSender<domain::Action>,
-    // ) -> Result<()> {
-    //     self.command_tx = Some(tx);
-    //     Ok(())
-    // }
-
-    // fn register_config_handler(&mut self, config: Config) -> Result<()> {
-    //     self.config = config;
-    //     Ok(())
-    // }
-
-    fn update(
-        &mut self,
-        action: domain::Action,
-    ) -> Result<Option<domain::Action>> {
-        match action {
-            domain::Action::Tick => {
-                // add any logic here that should run on every tick
-            }
-            domain::Action::Render => {
-                // add any logic here that should run on every render
-            }
-            domain::Action::UpdateBackendStatus => {
-                self.backend_status = true;
-                // self.update_backend_status();
-                // let toast = domain::Toast::new("Backend status updated").kind(domain::ToastKind::Notification);
-                // Some(domain::Action::Toast(toast))
-            }
-            _ => {}
+    fn update(&mut self, action: domain::Action) -> Result<Option<domain::Action>> {
+        if let domain::Action::BackendStatus(status) = action {
+            self.backend_status = status;
         }
         Ok(None)
-    }
-
-    fn handle_key_event(
-        &mut self,
-        key_event: crossterm::KeyEvent,
-    ) -> Result<Option<domain::Action>> {
-        let action = match key_event.code {
-            crossterm::KeyCode::Char('r') => {
-                // Build toast instance
-                let toasty = domain::Toast::new("This a toast message")
-                    .kind(domain::ToastKind::Error);
-
-                // Return action for update
-                domain::Action::Toast(toasty)
-            }
-            crossterm::KeyCode::Esc => domain::Action::ClearToast,
-            _ => domain::Action::Nil,
-        };
-
-        Ok(Some(action))
     }
 
     fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
@@ -108,7 +46,9 @@ impl components::Component for FooterComponent {
             footer_left,
         );
 
-        let status_widget = custom_widgets::StatusWidget::init(self.backend_status);
+        // TODO: Pass reference with lifetime
+        let status_widget =
+            custom_widgets::StatusWidget::init(self.backend_status.clone());
         frame.render_widget(status_widget, status_area);
 
         Ok(())

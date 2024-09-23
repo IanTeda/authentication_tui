@@ -7,7 +7,7 @@ use std::time;
 
 /// Backend state model
 #[derive(Debug, Clone, PartialEq)]
-pub struct Backend {
+pub struct BackendState {
     /// Access token returned during login
     pub access_token: Option<String>,
 
@@ -30,7 +30,7 @@ pub struct Backend {
     pub is_logged_in: bool,
 }
 
-impl Default for Backend {
+impl Default for BackendState {
     /// Default settings used to write to file if config file not found
     fn default() -> Self {
         let access_token = None;
@@ -54,7 +54,7 @@ impl Default for Backend {
 }
 
 
-impl Backend {
+impl BackendState {
     pub fn new() -> Self {
         Default::default()
     }
