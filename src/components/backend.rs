@@ -7,33 +7,44 @@
 
 use crossterm::event as crossterm;
 use ratatui::prelude::*;
-use std::time;
+use std::{net, time};
 
-use crate::{components, domain, prelude::*};
+use crate::{
+    client::{rpc, RpcClient},
+    components, domain,
+    prelude::*,
+    Config,
+};
 
 pub struct BackendComponent {
+    /// Backend socket address
+    address: net::SocketAddr,
+
     /// Access token returned during login
-    pub access_token: Option<String>,
+    access_token: Option<String>,
 
     /// When was the access token received
-    pub access_token_time: Option<time::Instant>,
+    access_token_time: Option<time::Instant>,
 
     /// Refresh token (session) return by the backend
-    pub refresh_token: Option<String>,
+    refresh_token: Option<String>,
 
     /// When was the refresh token received
-    pub refresh_token_time: Option<time::Instant>,
+    refresh_token_time: Option<time::Instant>,
 
     /// Is the backend online
-    pub status: domain::BackendStatus,
+    status: domain::BackendStatus,
 
     /// When was the backend last checked for being online
-    pub status_checked_time: Option<time::Instant>,
+    status_checked_time: Option<time::Instant>,
 }
 
 impl Default for BackendComponent {
     /// Default settings used to write to file if config file not found
     fn default() -> Self {
+        let localhost = net::IpAddr::V4(net::Ipv4Addr::new(127, 0, 0, 1));
+        let port = 8081;
+        let address = net::SocketAddr::new(localhost, port);
         let access_token = None;
         let access_token_time = None;
         let refresh_token = None;
@@ -42,6 +53,7 @@ impl Default for BackendComponent {
         let status_checked_time = None;
 
         Self {
+            address,
             access_token,
             access_token_time,
             refresh_token,
@@ -53,11 +65,29 @@ impl Default for BackendComponent {
 }
 
 impl BackendComponent {
-    pub fn new() -> Self {
-        Self::default()
+    /// Construct a new backend component
+    pub fn new(address: net::SocketAddr) -> Self {
+        Self {
+            address,
+            ..Default::default()
+        }
     }
-    fn check_online() -> Self {
-        unimplemented!()
+
+    /// Check if the backend authentication server is online
+    async fn check_online(&self) -> Result<String> {
+        let mut client = RpcClient::new(self.address).await?;
+
+        let request_message = tonic::Request::new(rpc::Empty {});
+
+        let response = client.utilities().ping(request_message).await?;
+
+        let (_response_metadata, response_message, _response_extensions) =
+            response.into_parts();
+
+
+        // println!("Message: {:?}", response_message);
+
+        Ok(response_message.message)
     }
 }
 
@@ -89,7 +119,8 @@ impl components::Component for BackendComponent {
             }
             domain::Action::BackendStatus(status) => {
                 // Build toast message
-                let message = format!("Backend authentication server is now: {}", status);
+                let message =
+                    format!("Backend authentication server is now: {}", status);
 
                 // Build toast instance
                 let toast = domain::Toast::new(message)
@@ -102,9 +133,12 @@ impl components::Component for BackendComponent {
             }
             domain::Action::BackendStatusUpdate => {
                 // Check backend status
+                // self.check_online();
                 self.status = domain::BackendStatus::Online;
                 let status = domain::BackendStatus::Online;
                 let action = domain::Action::BackendStatus(status);
+
+                // let message = self.check_online().await?;
 
                 Some(action)
             }

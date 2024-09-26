@@ -1,8 +1,11 @@
 //-- ./src/client.rs
 
+#![allow(unused)] // For beginning only.
+
 //! Tonic client module
 //! ---
 
+use core::net;
 use tonic::transport;
 
 use crate::prelude::*;
@@ -29,10 +32,12 @@ impl RpcClient {
 
     /// Spawn a new tonic client based on the tonic server
     pub async fn new(
-        address: String,
+        address: net::SocketAddr,
     ) -> Result<Self> {
         // Build Tonic Client channel
+        let address = format!("{}:{}", address.ip(), address.port()); //TODO: There has to be a better way
         let uri: tonic::transport::Uri = address.parse()?;
+        // let uri: tonic::transport::Uri = address.parse()?;
         let endpoint = transport::Channel::builder(uri);
         let channel: transport::Channel = endpoint.connect().await?;
 

@@ -38,7 +38,8 @@ impl App {
         // Initiate a new toast message component
         let toast_component = components::ToastComponent::new();
 
-        let backend_component = components::BackendComponent::new();
+        let backend_component =
+            components::BackendComponent::new(config.backend.address());
 
         let home_component = components::HomeComponent::new();
 
@@ -107,8 +108,7 @@ impl App {
     async fn update(&mut self, terminal: &mut Terminal) -> Result<()> {
         // Loop through all actions in the que.
         while let Ok(action) = self.actions.receiver.try_recv() {
-            if action != domain::Action::Tick && action != domain::Action::Render
-            {
+            if action != domain::Action::Tick && action != domain::Action::Render {
                 tracing::debug!("{action:?}");
             }
             match action {
