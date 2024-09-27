@@ -11,27 +11,12 @@ use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
+use crate::{domain, prelude::*};
+
 // use crate::prelude::*;
 
-/// TUI Application events.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Event {
-    Closed,
-    Error,
-    FocusGained,
-    FocusLost,
-    Init,
-    Key(crossterm::event::KeyEvent),
-    Mouse(crossterm::event::MouseEvent),
-    Paste(String),
-    Quit,
-    Render,
-    Resize(u16, u16),
-    Tick,
-}
-
 #[derive(Debug)]
-pub struct EventLoopHandler {
+pub struct CrosstermEventsHandler {
     /// How many times per second should a tick loop (event) happen
     tick_rate: f64,
 
@@ -39,10 +24,10 @@ pub struct EventLoopHandler {
     frame_rate: f64,
 
     /// Event sender channel.
-    sender: mpsc::UnboundedSender<Event>,
+    sender: mpsc::UnboundedSender<domain::Event>,
 
     /// Event receiver channel.
-    receiver: mpsc::UnboundedReceiver<Event>,
+    receiver: mpsc::UnboundedReceiver<domain::Event>,
 
     /// Event handler thread.
     task: tokio::task::JoinHandle<()>,
@@ -51,7 +36,7 @@ pub struct EventLoopHandler {
     cancellation_token: tokio_util::sync::CancellationToken,
 }
 
-impl EventLoopHandler {
+impl CrosstermEventsHandler {
     /// Construct a new instance of the Crossterm event loop handler
     pub fn new(tick_rate: f64, frame_rate: f64) -> Self {
         // Initiate send receive event channels
@@ -102,7 +87,7 @@ impl EventLoopHandler {
 
     /// The event loop
     async fn event_loop(
-        sender: mpsc::UnboundedSender<Event>,
+        sender: mpsc::UnboundedSender<domain::Event>,
         cancellation_token: tokio_util::sync::CancellationToken,
         tick_rate: f64,
         frame_rate: f64,
@@ -121,7 +106,9 @@ impl EventLoopHandler {
 
         // Check future channels are working. If this fails, then it's likely a
         // bug in the calling code
-        sender.send(Event::Init).expect("failed to send init event");
+        sender
+            .send(domain::Event::Init)
+            .expect("failed to send init event");
 
         loop {
             // Tokio’s select! macro allows us to wait on multiple async
@@ -131,24 +118,24 @@ impl EventLoopHandler {
                 _ = cancellation_token.cancelled() => break,
 
                 // On the tick interval add a tick event to the que
-                _ = tick_interval.tick() => Event::Tick,
+                _ = tick_interval.tick() => domain::Event::Tick,
 
                 // on the frame interval add a render event to the que
-                _ = frame_interval.tick() => Event::Render,
+                _ = frame_interval.tick() => domain::Event::Render,
 
-                // Poll the crossterm backend terminal stream for next crossterm terminal
+                // Poll the crossterm backend terminal stream for the next crossterm terminal
                 // event and send matched event to the que
                 crossterm_event = crossterm_event_stream.next().fuse() => match crossterm_event {
                     Some(Ok(event)) => match event {
-                        CrosstermEvent::FocusGained => Event::FocusGained,
-                        CrosstermEvent::FocusLost => Event::FocusLost,
-                        CrosstermEvent::Key(key) if key.kind == KeyEventKind::Press => Event::Key(key),
-                        CrosstermEvent::Mouse(mouse) => Event::Mouse(mouse),
-                        CrosstermEvent::Paste(s) => Event::Paste(s),
-                        CrosstermEvent::Resize(x, y) => Event::Resize(x, y),
+                        CrosstermEvent::FocusGained => domain::Event::FocusGained,
+                        CrosstermEvent::FocusLost => domain::Event::FocusLost,
+                        CrosstermEvent::Key(key) if key.kind == KeyEventKind::Press => domain::Event::Key(key),
+                        CrosstermEvent::Mouse(mouse) => domain::Event::Mouse(mouse),
+                        CrosstermEvent::Paste(s) => domain::Event::Paste(s),
+                        CrosstermEvent::Resize(x, y) => domain::Event::Resize(x, y),
                         _ => continue, // ignore other events
                     }
-                    Some(Err(_)) => Event::Error,
+                    Some(Err(_)) => domain::Event::Error, // TODO: Pass error in
                     None => break, // the event stream has stopped and will not produce any more events
                 },
             };
@@ -162,7 +149,10 @@ impl EventLoopHandler {
     }
 
     /// Get the next event in the que
-    pub async fn next(&mut self) -> Option<Event> {
-        self.receiver.recv().await
+    pub async fn next(&mut self) -> Result<domain::Event> {
+        self.receiver
+            .recv()
+            .await
+            .ok_or(Error::Generic("IO Crossterm Error".to_string()))
     }
 }

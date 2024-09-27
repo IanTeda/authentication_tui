@@ -24,10 +24,10 @@ async fn main() -> Result<()> {
     let data_directory = config.clone().app.data_directory;
     authentication_tui::tracing::init(data_directory)?;
 
-    // Construct a new TUI application instance
+    // Initiate the TUI application
     let mut app = authentication_tui::App::new(config)?;
 
-    // Run the TUI app
+    // Run the TUI application
     app.run().await?;
 
     Ok(())

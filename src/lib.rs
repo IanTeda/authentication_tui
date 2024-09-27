@@ -17,23 +17,16 @@ pub mod client;
 mod config;
 pub use config::Config;
 
-pub mod components;
-pub use components::Component;
-
 pub mod custom_widgets;
 
 /// Domain type definitions
 pub mod domain;
 
-/// UI components and widgets
-pub mod ui;
+pub mod handlers;
 
 /// TUI Application error types
 pub mod error;
 pub use error::Error;
-
-/// Event and action handlers
-pub mod handlers;
 
 /// Re-exports of key modules to include in each module
 pub mod prelude;
@@ -47,3 +40,6 @@ pub use terminal::Terminal;
 
 /// Tracing (logging) module
 pub mod tracing;
+
+/// UI components and widgets
+pub mod ui;

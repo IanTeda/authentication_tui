@@ -26,7 +26,7 @@ pub struct Terminal {
     pub paste_enabled: bool,
 
     /// Crossterm event loop handler
-    pub events: handlers::EventLoopHandler,
+    pub events: handlers::CrosstermEventsHandler,
 }
 
 impl Terminal {
@@ -37,7 +37,7 @@ impl Terminal {
             ratatui::backend::CrosstermBackend::new(io::stdout()),
         )?;
 
-        let events = handlers::EventLoopHandler::new(tick_rate, frame_rate);
+        let events = handlers::CrosstermEventsHandler::new(tick_rate, frame_rate);
 
         // Default mouse enable is false
         let mouse_enabled = false;

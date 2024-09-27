@@ -1,13 +1,19 @@
 //-- ./src/handlers/mod.rs
 
-//! Handlers module
-//! ---
+//! Handler modules
 
-/// Action handler
-mod action;
-pub use action::ActionHandler;
+/// Handle events coming from the crossterm backend terminal
+mod crossterm;
+pub use crossterm::CrosstermEventsHandler;
 
-/// Event enum and handler
-mod event;
-pub use event::Event;
-pub use event::EventLoopHandler;
+/// Handle key events
+mod keys;
+pub use keys::key_events_handler;
+
+/// Handle render events
+mod render;
+pub use render::render_event_handler;
+
+/// Handle tick events
+mod tick;
+pub use tick::tick_event_handler;

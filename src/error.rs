@@ -9,7 +9,7 @@
 //! * [Tired-Fox/rataify](https://github.com/Tired-Fox/rataify/blob/main/src/error.rs)
 //! ---
 
-use crate::{domain, prelude::*};
+use crate::prelude::*;
 
 /// Application error enum
 #[derive(thiserror::Error, Debug)]
@@ -36,9 +36,6 @@ pub enum Error {
 
     #[error(transparent)]
     Config(#[from] config::ConfigError),
-
-    #[error(transparent)]
-    ActionHandler(#[from] tokio::sync::mpsc::error::SendError<domain::Action>),
 
     #[error(transparent)]
     TonicTransport(#[from] tonic::transport::Error),

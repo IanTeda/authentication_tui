@@ -5,61 +5,27 @@
 //! The TUI application module
 //! ---
 
-use crate::{components, domain, handlers, prelude::*, state, Terminal};
+use crate::handlers;
+pub(crate) use crate::{domain, prelude::*, state, Terminal, ui};
 
 // #[derive(Debug)]
 pub struct App {
     /// Application state
-    // TODO: Change to AppState
     state: state::State,
 
     /// Application configuration
     config: crate::config::Config,
-
-    /// Actions handler
-    actions: crate::handlers::ActionHandler,
-
-    /// UI components that get plugged in
-    pub components: Vec<Box<dyn components::Component>>,
 }
 
 impl App {
-    /// Create a new app instance
+    /// Construct a new app instance
     pub fn new(config: crate::config::Config) -> Result<Self> {
         // Construct a default application state
-        let state = state::State::default();
-
-        // Construct a default action handler
-        let actions = handlers::ActionHandler::default();
-
-        // Initiate a new fps component
-        let fps_component = components::FpsComponent::new();
-
-        // Initiate a new toast message component
-        let toast_component = components::ToastComponent::new();
-
-        let backend_component =
-            components::BackendComponent::new(config.backend.address());
-
-        let home_component = components::HomeComponent::new();
-
-        let footer_component = components::FooterComponent::new();
-
-        // Built the components vector
-        let components: Vec<Box<dyn components::Component>> = vec![
-            // Store components on the heap (Box) not the stack
-            Box::new(fps_component),
-            Box::new(toast_component),
-            Box::new(backend_component),
-            Box::new(home_component),
-            Box::new(footer_component),
-        ];
+        let app_state = state::State::default();
 
         Ok(Self {
-            state,
+            state: app_state,
             config,
-            actions,
-            components,
         })
     }
 
@@ -73,29 +39,23 @@ impl App {
         // Enter terminal raw mode
         terminal.enter()?;
 
-        //-- 2. Plugin components
-        for component in self.components.iter_mut() {
-            // Pass the terminal area into each component
-            // Deref of terminal backend needed for size
-            component.init(terminal.size()?)?;
-
-            // Pass the action handler transmit channel into each component
-            component.register_action_handler(self.actions.sender.clone())?;
-
-            // Pass the configuration instance into each components
-            component.register_config_handler(self.config.clone())?;
-        }
-
         //-- 3. Run the main application loop
         // The TUI application main loop
         while self.state.app.is_running {
-            // Add any new terminal events to the action handler
-            self.actions
-                .handle_events(&mut terminal, &mut self.components)
-                .await?;
+            // Render the TUI to the terminal
+            self.render(&mut terminal)?;
 
-            // Update the application
-            self.update(&mut terminal).await?;
+            // Match crossterm backend terminal events for action
+            match terminal.events.next().await? {
+                domain::Event::Tick => handlers::tick_event_handler(&mut self.state),
+                domain::Event::Render => handlers::render_event_handler(&mut self.state),
+                domain::Event::Key(key_event) => {
+                    handlers::key_events_handler(key_event, &mut self.state)?
+                }
+                domain::Event::Mouse(_) => {}
+                domain::Event::Resize(_, _) => {}
+                _ => {}
+            }
         }
 
         //-- 4. Restore terminal screen on exit
@@ -104,49 +64,9 @@ impl App {
         Ok(())
     }
 
-    /// Update the application state for a given action.
-    async fn update(&mut self, terminal: &mut Terminal) -> Result<()> {
-        // Loop through all actions in the que.
-        while let Ok(action) = self.actions.receiver.try_recv() {
-            if action != domain::Action::Tick && action != domain::Action::Render {
-                tracing::debug!("{action:?}");
-            }
-            match action {
-                // Action::Tick => {
-                //     self.last_tick_key_events.drain(..);
-                // }
-                domain::Action::Quit => self.state.app.is_running = false,
-                // Action::Suspend => self.should_suspend = true,
-                // Action::Resume => self.should_suspend = false,
-                // Action::ClearScreen => tui.terminal.clear()?,
-                // Action::Resize(w, h) => self.handle_resize(tui, w, h)?,
-                domain::Action::Render => self.render(terminal)?,
-                _ => {}
-            }
-
-            // Plugin in components update function
-            for component in self.components.iter_mut() {
-                if let Some(action) = component.update(action.clone())? {
-                    self.actions.sender.send(action)?
-                };
-            }
-        }
-        Ok(())
-    }
-
     /// Render the terminal user interface
     fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-        // terminal.draw(|frame| ui::layout::render(&mut self.state, frame))?;
-
-        terminal.draw(|frame| {
-            for component in self.components.iter_mut() {
-                if let Err(err) = component.draw(frame, frame.area()) {
-                    let _ = self.actions.sender.send(domain::Action::Error(
-                        format!("Failed to draw: {:?}", err),
-                    ));
-                }
-            }
-        })?;
+        terminal.draw(|frame| ui::layout::render(&mut self.state, frame))?;
 
         Ok(())
     }

@@ -6,18 +6,21 @@
 /// App state module
 mod app;
 mod backend;
-pub use backend::BackendState;
 
 pub struct State {
     /// The TUI application state
-    pub app: app::App,
+    pub app: app::AppState,
+
+    /// The authentication backend server state
+    pub backend: backend::BackendState,
 }
 
 impl Default for State {
     /// Default settings used to write to file if config file not found
     fn default() -> Self {
-        let app = app::App::default();
+        let app = app::AppState::default();
+        let backend = backend::BackendState::default();
 
-        Self { app }
+        Self { app, backend }
     }
 }
