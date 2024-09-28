@@ -7,9 +7,11 @@
 
 use ratatui::{layout, widgets};
 
-use crate::state;
+use crate::{state, Config};
 
-pub fn render(state: &mut state::State, frame: &mut ratatui::Frame) {
+use super::custom_widgets;
+
+pub fn render(config: Config, state: &mut state::State, frame: &mut ratatui::Frame) {
     // Get the terminal window area
     let terminal_area = frame.area();
 
@@ -44,6 +46,16 @@ pub fn render(state: &mut state::State, frame: &mut ratatui::Frame) {
         widgets::Paragraph::new("Footer Left").block(widgets::Block::new()),
         footer_left,
     );
+
+    //-- Render statistics widget if set in the config file
+    // Construct the custom statistics widget
+    let statistics_widget =
+        custom_widgets::StatisticsWidget::update(state.app.ticks_per_second, state.app.frames_per_second);
+    
+    // Render the statistics widget. I need to go last as I use the terminal area
+    if config.app.show_statistics {
+        frame.render_widget(statistics_widget, terminal_area);
+    }
 
     // let status_widget = custom_widgets::StatusWidget::init(state.backend.is_online);
     // frame.render_widget(status_widget, status_area);

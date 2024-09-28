@@ -5,7 +5,7 @@
 //! Custom widget for the Authentication backend status in the footer
 //! ---
 
-use ratatui::{layout, style, text, widgets};
+use ratatui::{layout, style, widgets};
 
 use crate::domain;
 

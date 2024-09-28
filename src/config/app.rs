@@ -26,6 +26,8 @@ pub struct AppConfig {
 
     /// Frame (redraw) of the application refresh in frames per second i.e. number of frames per second
     pub frame_rate: f64,
+
+    pub show_statistics: bool,
 }
 
 impl Default for AppConfig {
@@ -49,11 +51,14 @@ impl Default for AppConfig {
 
         let frame_rate: f64 = 60.0;
 
+        let show_statistics = false;
+
         Self {
             data_directory,
             config_file,
             tick_rate,
             frame_rate,
+            show_statistics
         }
     }
 }

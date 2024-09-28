@@ -17,8 +17,6 @@ pub mod client;
 mod config;
 pub use config::Config;
 
-pub mod custom_widgets;
-
 /// Domain type definitions
 pub mod domain;
 

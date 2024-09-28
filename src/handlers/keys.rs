@@ -10,7 +10,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crate::state;
 
 /// Handles the key events and updates the state of [`App`].
-pub fn key_events_handler(key_event: KeyEvent, state: &mut state::State) -> Result<()> {
+pub fn handle_event(key_event: KeyEvent, state: &mut state::State) -> Result<()> {
     match key_event.code {
         // Exit application on `ESC` or `q`
         KeyCode::Esc | KeyCode::Char('q') => {

@@ -1,6 +1,6 @@
 //-- ./src/ui/custom_widgets/mod.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Custom widgets module.
 //!
@@ -9,8 +9,9 @@
 //! - [Create custom widgets](https://ratatui.rs/recipes/widgets/custom/)
 //! ---
 
-mod fps;
-pub use fps::FpsWidget;
+mod statistics;
+pub use statistics::StatisticsWidget;
+
 /// Display a toast message
 mod toast;
 /// Custom widget to display a toast message

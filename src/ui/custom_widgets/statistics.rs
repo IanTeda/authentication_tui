@@ -1,3 +1,10 @@
+//-- ./src/ui/custom_widgets/statistics.rs
+
+// #![allow(unused)] // For beginning only.
+
+//! A custom widget for displaying application statistics
+//! ---
+
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
@@ -6,13 +13,15 @@ use ratatui::{
     widgets::{Paragraph, Widget},
 };
 
-pub struct FpsWidget {
+/// A struct to hold the application statistics
+pub struct StatisticsWidget {
     pub ticks_per_second: f64,
     pub frames_per_second: f64,
 }
 
-impl FpsWidget {
-    pub fn init(ticks_per_second: f64, frames_per_second: f64) -> Self {
+impl StatisticsWidget {
+    /// Update the application statistics to show
+    pub fn update(ticks_per_second: f64, frames_per_second: f64) -> Self {
         Self {
             ticks_per_second,
             frames_per_second,
@@ -20,7 +29,7 @@ impl FpsWidget {
     }
 }
 
-impl Widget for FpsWidget {
+impl Widget for StatisticsWidget {
     /// [Required] Render the custom widget using the assigned area and terminal buffer
     fn render(self, area: Rect, buf: &mut Buffer) {
         // Calculate top right
@@ -29,17 +38,17 @@ impl Widget for FpsWidget {
 
         // Construct fps message
         let message = format!(
-            "{:.2} ticks/sec, {:.2} FPS",
+            "{:.2} ticks/sec, {:.2} frames/sec",
             self.ticks_per_second, self.frames_per_second
         );
 
+        // Construct the text span
         let span = Span::styled(message, Style::new().dim());
 
+        // Construct the paragraph that holds the span
         let paragraph = Paragraph::new(span).right_aligned();
 
-        // frame.render_widget(paragraph, top);
-        // paragraph
-
-        // Ok(())
+        // Render the constructed paragraph
+        paragraph.render(top, buf);
     }
 }
