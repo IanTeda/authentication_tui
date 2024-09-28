@@ -6,7 +6,7 @@
 //! ---
 
 /// The applications current state
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AppState {
     /// Is the application running
     pub is_running: bool,

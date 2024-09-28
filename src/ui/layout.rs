@@ -7,7 +7,7 @@
 
 use ratatui::{layout, widgets};
 
-use crate::{state, Config};
+use crate::{domain, state, Config};
 
 use super::custom_widgets;
 
@@ -49,13 +49,27 @@ pub fn render(config: Config, state: &mut state::State, frame: &mut ratatui::Fra
 
     //-- Render statistics widget if set in the config file
     // Construct the custom statistics widget
-    let statistics_widget =
-        custom_widgets::StatisticsWidget::update(state.app.ticks_per_second, state.app.frames_per_second);
-    
+    let statistics_widget = custom_widgets::StatisticsWidget::update(
+        state.app.ticks_per_second,
+        state.app.frames_per_second,
+    );
+
     // Render the statistics widget. I need to go last as I use the terminal area
     if config.app.show_statistics {
         frame.render_widget(statistics_widget, terminal_area);
     }
+
+    //-- Render toast message widget if there is one
+    if let Some(ref mut current_toast) = state.toast.current {
+        let toast_widget = custom_widgets::ToastWidget {
+            toast: current_toast.clone(),
+        };
+        frame.render_widget(toast_widget, terminal_area)
+    }
+
+    // let current_toast = domain::Toast::new("This is a toast message");
+    // let toast_widget = custom_widgets::ToastWidget::init(current_toast);
+    // frame.render_widget(toast_widget, terminal_area);
 
     // let status_widget = custom_widgets::StatusWidget::init(state.backend.is_online);
     // frame.render_widget(status_widget, status_area);

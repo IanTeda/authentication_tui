@@ -11,6 +11,8 @@ use std::time;
 
 use crate::state;
 
+const TOAST_DURATION: time::Duration = time::Duration::from_secs(3);
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct TickEventHandler {
     /// Time since last tick
@@ -67,11 +69,27 @@ impl TickEventHandler {
 
     /// What to do each tick event cycle
     pub fn handle_event(&mut self, state: &mut state::State) {
+        //-- 1. Calculate tick statistics
         // Calculate the current tick rate, based on the last tick time
         self.calculate_tick_rate();
 
         // Update the application tick rate state
         state.app.ticks_per_second = self.ticks_per_second;
+
+        //-- 2. Manage toast messages
+        // If we have an optional toast message wait for elapsed time to exceed
+        if let Some(ref mut t) = state.toast.current {
+            // If toast duration is exceeded set option to None, to display
+            // the next toast message in the queue.
+            if t.shown_at.elapsed() > TOAST_DURATION {
+                state.toast.current = None;
+            }
+        // Else if we have None optional toast and there is something in
+        // the toast queue pop it into the optional toast
+        } else if let Some(mut t) = state.toast.queue.pop_front() {
+            t.shown_at = time::Instant::now();
+            state.toast.current = Some(t);
+        }
 
     }
 }

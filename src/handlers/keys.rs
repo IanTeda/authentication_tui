@@ -13,7 +13,7 @@ use crate::state;
 pub fn handle_event(key_event: KeyEvent, state: &mut state::State) -> Result<()> {
     match key_event.code {
         // Exit application on `ESC` or `q`
-        KeyCode::Esc | KeyCode::Char('q') => {
+        KeyCode::Char('q') => {
             state.app.is_running = false;
         }
         // Exit application on `Ctrl-C`
@@ -21,6 +21,13 @@ pub fn handle_event(key_event: KeyEvent, state: &mut state::State) -> Result<()>
             if key_event.modifiers == KeyModifiers::CONTROL {
                 state.app.is_running = false;
             }
+        }
+        // KeyCode::Char('t') => {
+        //     let toast_message = domain::Toast::new("Added toast to queue").kind(domain::ToastKind::Error);
+        //     state.toast.queue.push_back(toast_message);
+        // }
+        KeyCode::Esc => {
+            state.toast.current = None;
         }
         // // Counter handlers
         // KeyCode::Right => {
