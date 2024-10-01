@@ -5,7 +5,7 @@
 //! What to do with key events
 //! ---
 
-use crate::prelude::*;
+use crate::{domain, prelude::*};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crate::state;
 
@@ -26,6 +26,9 @@ pub fn handle_event(key_event: KeyEvent, state: &mut state::State) -> Result<()>
         //     let toast_message = domain::Toast::new("Added toast to queue").kind(domain::ToastKind::Error);
         //     state.toast.queue.push_back(toast_message);
         // }
+        KeyCode::Char('r') => {
+            state.backend.status = domain::BackendStatus::Online;
+        }
         KeyCode::Esc => {
             state.toast.current = None;
         }

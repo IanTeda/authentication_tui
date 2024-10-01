@@ -30,7 +30,7 @@ impl widgets::Widget for StatusWidget {
             domain::BackendStatus::Offline => {
                 let status = "Offline";
                 let style = style::Style::default()
-                    .fg(style::Color::LightGreen)
+                    .fg(style::Color::LightRed)
                     // .bg(style::Color::Green)
                     .add_modifier(style::Modifier::BOLD);
                 (status, style)

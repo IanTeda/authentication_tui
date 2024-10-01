@@ -5,6 +5,8 @@
 
 use std::time;
 
+use crate::domain;
+
 /// Backend state model
 #[derive(Debug, Clone, PartialEq)]
 pub struct BackendState {
@@ -21,13 +23,10 @@ pub struct BackendState {
     pub refresh_token_time: Option<time::Instant>,
 
     /// Is the backend online
-    pub is_online: bool,
+    pub status: domain::BackendStatus,
 
     /// When was the backend last checked for being online
     pub status_checked_on: Option<time::Instant>,
-
-    /// Are we logged into the back end
-    pub is_logged_in: bool,
 }
 
 impl Default for BackendState {
@@ -37,18 +36,16 @@ impl Default for BackendState {
         let access_token_time = None;
         let refresh_token = None;
         let refresh_token_time = None;
-        let is_online = false;
+        let status = domain::BackendStatus::Offline;
         let status_checked_on = None;
-        let is_logged_in = false;
 
         Self { 
             access_token, 
             access_token_time, 
             refresh_token, 
             refresh_token_time, 
-            is_online, 
+            status, 
             status_checked_on, 
-            is_logged_in,
         }
     }
 }
