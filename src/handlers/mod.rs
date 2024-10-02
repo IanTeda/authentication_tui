@@ -13,7 +13,8 @@ pub use crossterm::CrosstermEventsHandler;
 
 /// Handle key events
 mod keys;
-pub use keys::handle_event;
+// pub use keys::handle_event;
+pub use keys::KeyEventHandler;
 
 /// Handle render events
 mod render;

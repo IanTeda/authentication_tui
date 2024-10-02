@@ -35,9 +35,8 @@ impl RpcClient {
         address: net::SocketAddr,
     ) -> Result<Self> {
         // Build Tonic Client channel
-        let address = format!("{}:{}", address.ip(), address.port()); //TODO: There has to be a better way
+        let address = format!("http://{}:{}", address.ip(), address.port()); //TODO: There has to be a better way
         let uri: tonic::transport::Uri = address.parse()?;
-        // let uri: tonic::transport::Uri = address.parse()?;
         let endpoint = transport::Channel::builder(uri);
         let channel: transport::Channel = endpoint.connect().await?;
 

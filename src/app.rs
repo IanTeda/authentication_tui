@@ -21,6 +21,8 @@ pub struct App {
 
     /// Application render event
     render: crate::handlers::RenderEventHandler,
+
+    keys: crate::handlers::KeyEventHandler,
 }
 
 impl App {
@@ -35,11 +37,14 @@ impl App {
         // Construct a new render event handler
         let render = handlers::RenderEventHandler::new();
 
+        let keys = handlers::KeyEventHandler::new(config.clone());
+
         Ok(Self {
             state,
             config,
             tick,
             render,
+            keys,
         })
     }
 
@@ -64,7 +69,8 @@ impl App {
                 domain::Event::Tick => self.tick.handle_event(&mut self.state),
                 domain::Event::Render => self.render.handle_event(&mut self.state),
                 domain::Event::Key(key_event) => {
-                    handlers::handle_event(key_event, &mut self.state)?
+                    // handlers::handle_event(key_event, &mut self.state)?
+                    self.keys.handle_event(key_event, &mut self.state).await?
                 }
                 domain::Event::Mouse(_) => {}
                 domain::Event::Resize(_, _) => {}
