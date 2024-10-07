@@ -5,7 +5,7 @@
 //! What to do with key events
 //! ---
 
-use crate::{client, state};
+use crate::{client, services, state};
 use crate::{domain, prelude::*};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
@@ -40,27 +40,55 @@ impl KeyEventHandler {
             //     let toast_message = domain::Toast::new("Added toast to queue").kind(domain::ToastKind::Error);
             //     state.toast.queue.push_back(toast_message);
             // }
+
+            // Refresh backend server status
             KeyCode::Char('r') => {
-                // state.backend.status = domain::BackendStatus::Online;
+                // Assign socket address for communicating with the backend
                 let address = self.config.backend.address();
 
-                let mut rpc_client = client::RpcClient::new(address).await?;
-                let request_message = tonic::Request::new(client::rpc::Empty {});
-                let response = rpc_client.utilities().ping(request_message).await?;
-                let (response_metadata, _response_message, _response_extensions) =
-                    response.into_parts();
+                // Build the rpc client, setting Offline if error returned
+                let mut rpc_client = match client::RpcClient::new(address).await {
+                    // Match call returned an ok result
+                    Ok(rpc_client) => rpc_client,
 
-                let grpc_status = response_metadata.get::<&str>("grpc-status");
+                    // Match call returned an error result
+                    Err(error) => {
+                        // Set state to Offline
+                        state.backend.status = domain::BackendStatus::Offline;
 
-                if let Some(status) = grpc_status {
-                    if status == "0" {
-                        state.backend.status = domain::BackendStatus::Online;
-                        let toast_message = format!("Backend server is: {:?}", state.backend.status);
-                        let toast = domain::Toast::new(toast_message);
-                        state.toast.queue.push_back(toast);
+                        // Provide toast of status to user
+                        toast_backend_status(state);
+
+                        // Send error to tracing log
+                        tracing::error!("Error connecting to backend server: {}", error);
+
+                        // Return ok to the function as error was handled
+                        return Ok(());
                     }
+                };
+
+                // Construct a utilities service
+                let mut utilities_service = services::UtilitiesService::new(rpc_client);
+
+                // Check if backend is online
+                if utilities_service.is_online().await {
+                    // Set backend status to Online
+                    state.backend.status = domain::BackendStatus::Online;
+
+                    // Provide toast of status to user
+                    toast_backend_status(state);
+                
+                // Else false
+                } else {
+                    // Set state to Offline
+                    state.backend.status = domain::BackendStatus::Offline;
+
+                    // Provide toast of status to user
+                    toast_backend_status(state);
                 }
             }
+
+            // Escape from the tui application
             KeyCode::Esc => {
                 state.toast.current = None;
             }
@@ -76,6 +104,12 @@ impl KeyEventHandler {
         }
         Ok(())
     }
+}
+
+fn toast_backend_status(state: &mut state::State) {
+    let toast_message = format!("Backend server is: {:?}", state.backend.status);
+    let toast = domain::Toast::new(toast_message);
+    state.toast.queue.push_back(toast);
 }
 
 // /// Handles the key events and updates the state of [`App`].

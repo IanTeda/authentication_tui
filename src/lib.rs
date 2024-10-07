@@ -29,6 +29,9 @@ pub use error::Error;
 /// Re-exports of key modules to include in each module
 pub mod prelude;
 
+/// RPC services
+pub mod services;
+
 /// The application state
 pub mod state;
 

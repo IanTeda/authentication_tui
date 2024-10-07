@@ -25,11 +25,6 @@ pub type UtilitiesClient =
     rpc::utilities_client::UtilitiesClient<transport::Channel>;
 
 impl RpcClient {
-    /// Returns the utilities client.
-    pub fn utilities(&mut self) -> &mut UtilitiesClient {
-        &mut self.utilities
-    }
-
     /// Spawn a new tonic client based on the tonic server
     pub async fn new(
         address: net::SocketAddr,
@@ -45,5 +40,10 @@ impl RpcClient {
         let client = RpcClient { utilities };
 
         Ok(client)
+    }
+
+    /// Returns the utilities client.
+    pub fn utilities(&mut self) -> &mut UtilitiesClient {
+        &mut self.utilities
     }
 }
