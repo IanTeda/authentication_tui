@@ -8,15 +8,18 @@
 use crate::{client, services, state};
 use crate::{domain, prelude::*};
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use tokio::sync::mpsc;
 
 pub struct KeyEventHandler {
     pub config: crate::Config,
+    action_tx: Option<mpsc::UnboundedSender<domain::Action>>,
 }
 
 impl KeyEventHandler {
     /// Construct a new key event handler
     pub fn new(config: crate::Config) -> Self {
-        Self { config }
+        let action_tx = None;
+        Self { config, action_tx }
     }
 
     /// Handles the key events and updates the state of [`App`].
@@ -25,6 +28,34 @@ impl KeyEventHandler {
         key_event: KeyEvent,
         state: &mut state::State,
     ) -> Result<()> {
+        // Assign socket address for communicating with the backend
+        let rpc_server_address = self.config.backend.address();
+
+        // Build the rpc client, setting Offline if error returned
+        let rpc_client: Option<client::RpcClient> =
+            match client::RpcClient::new(rpc_server_address).await {
+                // Match call returned an ok result
+                Ok(rpc_client) => Some(rpc_client),
+
+                // Match call returned an error result
+                Err(error) => {
+                    // Set state to Offline
+                    state.backend.status = domain::BackendStatus::Offline;
+
+                    // Provide toast of status to user
+                    let toast_message =
+                        format!("Backend server is: {:?}", state.backend.status);
+                    let toast = domain::Toast::new(toast_message);
+                    state.toast.queue.push_back(toast);
+
+                    // Send error to tracing log
+                    tracing::error!("Error connecting to backend server: {}", error);
+
+                    // Return None
+                    None
+                }
+            };
+
         match key_event.code {
             // Exit application on `ESC` or `q`
             KeyCode::Char('q') => {
@@ -43,42 +74,27 @@ impl KeyEventHandler {
 
             // Refresh backend server status
             KeyCode::Char('r') => {
-                // Assign socket address for communicating with the backend
-                let address = self.config.backend.address();
+                if let Some(rpc_client) = rpc_client {
+                    // Construct a utilities service
+                    let mut utilities_service =
+                        services::UtilitiesService::new(rpc_client);
 
-                // Build the rpc client, setting Offline if error returned
-                let mut rpc_client = match client::RpcClient::new(address).await {
-                    // Match call returned an ok result
-                    Ok(rpc_client) => rpc_client,
+                    // Check if backend is online
+                    if utilities_service.is_online().await {
+                        // Set backend status to Online
+                        state.backend.status = domain::BackendStatus::Online;
 
-                    // Match call returned an error result
-                    Err(error) => {
+                        // Provide toast of status to user
+                        toast_backend_status(state);
+
+                    // Else false
+                    } else {
                         // Set state to Offline
                         state.backend.status = domain::BackendStatus::Offline;
 
                         // Provide toast of status to user
                         toast_backend_status(state);
-
-                        // Send error to tracing log
-                        tracing::error!("Error connecting to backend server: {}", error);
-
-                        // Return ok to the function as error was handled
-                        return Ok(());
                     }
-                };
-
-                // Construct a utilities service
-                let mut utilities_service = services::UtilitiesService::new(rpc_client);
-
-                // Check if backend is online
-                if utilities_service.is_online().await {
-                    // Set backend status to Online
-                    state.backend.status = domain::BackendStatus::Online;
-
-                    // Provide toast of status to user
-                    toast_backend_status(state);
-                
-                // Else false
                 } else {
                     // Set state to Offline
                     state.backend.status = domain::BackendStatus::Offline;

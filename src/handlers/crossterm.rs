@@ -148,10 +148,7 @@ impl CrosstermEventsHandler {
     }
 
     /// Get the next event in the que
-    pub async fn next(&mut self) -> Result<domain::Event> {
-        self.receiver
-            .recv()
-            .await
-            .ok_or(Error::Generic("IO Crossterm Error".to_string()))
+    pub async fn next(&mut self) -> Option<domain::Event> {
+        self.receiver.recv().await
     }
 }

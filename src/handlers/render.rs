@@ -14,7 +14,10 @@ use crate::state;
 /// Keep track of the render event cycles
 #[derive(Debug, Clone, PartialEq)]
 pub struct RenderEventHandler {
-        /// Time since last frame
+    /// Application config
+    config: crate::Config,
+
+    /// Time since last frame
     last_frame_update: time::Instant,
 
     /// The number of frames
@@ -24,21 +27,17 @@ pub struct RenderEventHandler {
     frames_per_second: f64,
 }
 
-// Implement default for idiomatic completeness
-impl Default for RenderEventHandler {
-    /// Default TickEventHandler instance
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl RenderEventHandler {
     /// New TickEventHandler instance
-    pub fn new() -> Self {
+    pub fn new(config: crate::Config) -> Self {
+        let last_frame_update= time::Instant::now();
+        let frame_count = 0;
+        let frames_per_second = 0.0;
         Self {
-            last_frame_update: time::Instant::now(),
-            frame_count: 0,
-            frames_per_second: 0.0,
+            config,
+            last_frame_update,
+            frame_count,
+            frames_per_second,
         }
     }
 
@@ -73,6 +72,5 @@ impl RenderEventHandler {
 
         // Update the application state
         state.app.frames_per_second = self.frames_per_second;
-
     }
 }

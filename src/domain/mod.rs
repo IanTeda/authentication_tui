@@ -2,6 +2,8 @@
 
 //! Application domain types
 //! ---
+mod action;
+pub use action::Action;
 
 mod backend_status;
 pub use backend_status::BackendStatus;

@@ -7,6 +7,9 @@
 //! 3. Render: Handle backend frame render events
 //! 4. Tick: Handle regular application tick events
 
+mod actions;
+pub use actions::ActionHandler;
+
 /// Handle events coming from the crossterm backend terminal
 mod crossterm;
 pub use crossterm::CrosstermEventsHandler;

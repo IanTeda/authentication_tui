@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     authentication_tui::tracing::init(data_directory)?;
 
     // Initiate the TUI application
-    let mut app = authentication_tui::App::new(config)?;
+    let mut app = authentication_tui::App::new(config).await?;
 
     // Run the TUI application
     app.run().await?;

@@ -44,7 +44,10 @@ pub enum Error {
     TonicStatus(#[from] tonic::Status),
 
     #[error(transparent)]
-    TonicUri(#[from] tonic::codegen::http::uri::InvalidUri)
+    TonicUri(#[from] tonic::codegen::http::uri::InvalidUri),
+
+    #[error(transparent)]
+    ActionSend(#[from] tokio::sync::mpsc::error::SendError<crate::domain::Action>),
 }
 
 pub fn init(tick_rate: f64, frame_rate: f64) -> Result<()> {
