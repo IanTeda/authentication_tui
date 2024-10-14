@@ -1,6 +1,6 @@
 //-- ./src/app.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! The TUI application module
 //! ---
@@ -17,16 +17,13 @@ pub struct App {
     config: crate::config::Config,
 
     /// Action handler
-    actions: crate::handlers::ActionHandler, 
+    actions: crate::handlers::ActionHandler,
 
     /// Application tick event
     tick: crate::handlers::TickEventHandler,
 
-    // /// Application render event
+    /// Application render event
     render: crate::handlers::RenderEventHandler,
-
-    // /// Key event handler
-    keys: crate::handlers::KeyEventHandler,
 }
 
 impl App {
@@ -38,26 +35,18 @@ impl App {
         // Construct action handler
         let actions = handlers::ActionHandler::default();
 
-        // Build the rpc client, setting Offline if error returned
-        // let rpc_client = client::RpcClient::new(config.backend.address()).await?;
-
         // Construct a new tick event handler
-        let tick = handlers::TickEventHandler::new(config.clone());
+        let tick = handlers::TickEventHandler::init(actions.action_sender.clone());
 
         // // Construct a new render event handler
-        let render = handlers::RenderEventHandler::new(config.clone());
-
-        // // Construct key event handler
-        let keys = handlers::KeyEventHandler::new(config.clone());
+        let render = handlers::RenderEventHandler::init(actions.action_sender.clone());
 
         Ok(Self {
             state,
             config,
             actions,
-            // rpc_client,
             tick,
             render,
-            keys,
         })
     }
 
@@ -68,63 +57,19 @@ impl App {
         let mut terminal =
             Terminal::new(self.config.app.tick_rate, self.config.app.frame_rate)?;
 
-        // // Assign socket address for communicating with the backend
-        // let rpc_server_address = self.config.backend.address();
-
-        // // Build the rpc client, setting Offline if error returned
-        // let rpc_client: Option<client::RpcClient> =
-        //     match client::RpcClient::new(rpc_server_address).await {
-        //         // Match call returned an ok result
-        //         Ok(rpc_client) => Some(rpc_client),
-
-        //         // Match call returned an error result
-        //         Err(error) => {
-        //             // Set state to Offline
-        //             self.state.backend.status = domain::BackendStatus::Offline;
-
-        //             // Provide toast of status to user
-        //             let toast_message =
-        //                 format!("Backend server is: {:?}", self.state.backend.status);
-        //             let toast = domain::Toast::new(toast_message);
-        //             self.state.toast.queue.push_back(toast);
-
-        //             // Send error to tracing log
-        //             tracing::error!("Error connecting to backend server: {}", error);
-
-        //             // Return None
-        //             None
-        //         }
-        //     };
-
         // Enter terminal raw mode
         terminal.enter()?;
 
         //-- 3. Run the main application loop
-        // The TUI application main loop
         while self.state.app.is_running {
             // Render the TUI to the terminal
             self.render(&mut terminal)?;
 
-            self.actions.handle_events(&mut terminal).await?;
+            // Map crossterm events into actions
+            self.actions.handle_events(&mut terminal.events).await?;
 
-            self.update();
-
-            // Match crossterm backend terminal events for action
-            // match terminal.events.next().await {
-                // //TODO: Can we work around this clone
-                // domain::Event::Tick => {
-                //     self.tick
-                //         .handle_event(&mut self.state)
-                //         .await
-                // }
-                // domain::Event::Render => self.render.handle_event(&mut self.state),
-                // domain::Event::Key(key_event) => {
-                //     self.keys.handle_event(key_event, &mut self.state).await?
-                // }
-                // domain::Event::Mouse(_) => {}
-                // domain::Event::Resize(_, _) => {}
-                // _ => {}
-            // }
+            // Update the app based on the action
+            self.update().await?;
         }
 
         //-- 4. Restore terminal screen on exit
@@ -143,16 +88,24 @@ impl App {
     }
 
     async fn update(&mut self) -> Result<()> {
-        while let Some(action) = self.actions.next().await {
+        while let Ok(action) = self.actions.next_action() {
+            // Check
             if action != domain::Action::Tick && action != domain::Action::Render {
                 tracing::debug!("{action:?}");
             }
 
-             match action {
-                domain::Action::Tick => self.tick.handle_event(&mut self.state).await,
+            // Match action
+            match action {
+                domain::Action::Init => {
+                    println!("Initiate app")
+                }
+                domain::Action::Tick => {
+                    self.tick.handle_event(&mut self.state).await
+                }
+                domain::Action::Render => self.render.handle_event(&mut self.state),
                 domain::Action::Quit => self.state.app.is_running = false,
                 _ => {}
-             }
+            }
         }
 
         Ok(())

@@ -48,6 +48,10 @@ pub enum Error {
 
     #[error(transparent)]
     ActionSend(#[from] tokio::sync::mpsc::error::SendError<crate::domain::Action>),
+
+    #[error(transparent)]
+    TryRecv(#[from] tokio::sync::mpsc::error::TryRecvError),
+    // tokio::sync::mpsc::error::TryRecvError
 }
 
 pub fn init(tick_rate: f64, frame_rate: f64) -> Result<()> {

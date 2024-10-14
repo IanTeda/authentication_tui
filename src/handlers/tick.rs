@@ -9,16 +9,17 @@
 
 // use std::{os::unix::net, time};
 use std::{net, time};
+use tokio::sync::mpsc;
 
 use crate::{client, domain, services, state};
 
 const TOAST_DURATION: time::Duration = time::Duration::from_secs(3);
 const STATUS_CHECK_DURATION: time::Duration = time::Duration::from_secs(1);
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct TickEventHandler {
-    /// Application configuration
-    config: crate::Config,
+    /// Action sender
+    action_sender: mpsc::UnboundedSender<domain::Action>,
 
     /// Time since last tick
     last_tick_update: time::Instant,
@@ -32,12 +33,12 @@ pub struct TickEventHandler {
 
 impl TickEventHandler {
     /// New TickEventHandler instance
-    pub fn new(config: crate::Config) -> Self {
+    pub fn init(action_sender: mpsc::UnboundedSender<domain::Action>) -> Self {
         let last_tick_update = time::Instant::now();
         let tick_count = 0;
         let ticks_per_second = 0.0;
         Self {
-            config,
+            action_sender,
             last_tick_update,
             tick_count,
             ticks_per_second,
@@ -53,18 +54,18 @@ impl TickEventHandler {
         // Update the application tick rate state
         state.app.ticks_per_second = self.ticks_per_second;
 
-        // If the status has been checked previously (not None), check if status
-        // check duration has elapsed
-        if let Some(checked_on) = state.backend.status_checked_on {
-            if checked_on.elapsed() > STATUS_CHECK_DURATION {
-                state.backend.status = domain::BackendStatus::Offline;
-                state.backend.status_checked_on = Some(time::Instant::now());
-            }
-        // Else check the backend authentication server status
-        } else {
-            state.backend.status = domain::BackendStatus::Offline;
-            state.backend.status_checked_on = Some(time::Instant::now());
-        }
+        // // If the status has been checked previously (not None), check if status
+        // // check duration has elapsed
+        // if let Some(checked_on) = state.backend.status_checked_on {
+        //     if checked_on.elapsed() > STATUS_CHECK_DURATION {
+        //         state.backend.status = domain::BackendStatus::Offline;
+        //         state.backend.status_checked_on = Some(time::Instant::now());
+        //     }
+        // // Else check the backend authentication server status
+        // } else {
+        //     state.backend.status = domain::BackendStatus::Offline;
+        //     state.backend.status_checked_on = Some(time::Instant::now());
+        // }
 
         // // If the status_checked_on option has a value process
         // if let Some(checked) = state.backend.status_checked_on {
@@ -124,20 +125,20 @@ impl TickEventHandler {
         //     }
         // }
 
-        //-- 2. Manage toast messages
-        // If we have an optional toast message wait for elapsed time to exceed
-        if let Some(ref mut t) = state.toast.current {
-            // If toast duration is exceeded set option to None, to display
-            // the next toast message in the queue.
-            if t.shown_at.elapsed() > TOAST_DURATION {
-                state.toast.current = None;
-            }
-        // Else if we have None optional toast and there is something in
-        // the toast queue pop it into the optional toast
-        } else if let Some(mut t) = state.toast.queue.pop_front() {
-            t.shown_at = time::Instant::now();
-            state.toast.current = Some(t);
-        }
+        // //-- 2. Manage toast messages
+        // // If we have an optional toast message wait for elapsed time to exceed
+        // if let Some(ref mut t) = state.toast.current {
+        //     // If toast duration is exceeded set option to None, to display
+        //     // the next toast message in the queue.
+        //     if t.shown_at.elapsed() > TOAST_DURATION {
+        //         state.toast.current = None;
+        //     }
+        // // Else if we have None optional toast and there is something in
+        // // the toast queue pop it into the optional toast
+        // } else if let Some(mut t) = state.toast.queue.pop_front() {
+        //     t.shown_at = time::Instant::now();
+        //     state.toast.current = Some(t);
+        // }
     }
 
     /// Update tick rate information

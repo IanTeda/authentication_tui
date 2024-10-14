@@ -1,6 +1,6 @@
 //-- ./src/handlers/render.rs
 
-// #![allow(unused)] // For beginning only.
+#![allow(unused)] // For beginning only.
 
 //! Application frame render events
 //! 
@@ -9,13 +9,15 @@
 
 use std::time;
 
-use crate::state;
+use tokio::sync::mpsc;
+
+use crate::{domain, state};
 
 /// Keep track of the render event cycles
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct RenderEventHandler {
-    /// Application config
-    config: crate::Config,
+    /// Action sender
+    action_sender: mpsc::UnboundedSender<domain::Action>,
 
     /// Time since last frame
     last_frame_update: time::Instant,
@@ -29,12 +31,12 @@ pub struct RenderEventHandler {
 
 impl RenderEventHandler {
     /// New TickEventHandler instance
-    pub fn new(config: crate::Config) -> Self {
+    pub fn init(action_sender: mpsc::UnboundedSender<domain::Action>) -> Self {
         let last_frame_update= time::Instant::now();
         let frame_count = 0;
         let frames_per_second = 0.0;
         Self {
-            config,
+            action_sender,
             last_frame_update,
             frame_count,
             frames_per_second,

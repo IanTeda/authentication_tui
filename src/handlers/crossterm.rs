@@ -10,7 +10,7 @@ use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
-use crate::{domain, prelude::*};
+use crate::domain;
 
 // use crate::prelude::*;
 
@@ -23,10 +23,10 @@ pub struct CrosstermEventsHandler {
     frame_rate: f64,
 
     /// Event sender channel.
-    sender: mpsc::UnboundedSender<domain::Event>,
+    event_sender: mpsc::UnboundedSender<domain::Event>,
 
     /// Event receiver channel.
-    receiver: mpsc::UnboundedReceiver<domain::Event>,
+    event_receiver: mpsc::UnboundedReceiver<domain::Event>,
 
     /// Event handler thread.
     task: tokio::task::JoinHandle<()>,
@@ -50,8 +50,8 @@ impl CrosstermEventsHandler {
         Self {
             tick_rate,
             frame_rate,
-            sender,
-            receiver,
+            event_sender: sender,
+            event_receiver: receiver,
             task,
             cancellation_token,
         }
@@ -72,7 +72,7 @@ impl CrosstermEventsHandler {
 
         // Construct crossterm event loop handler
         let event_loop = Self::event_loop(
-            self.sender.clone(),
+            self.event_sender.clone(),
             self.cancellation_token.clone(),
             self.tick_rate,
             self.frame_rate,
@@ -148,7 +148,7 @@ impl CrosstermEventsHandler {
     }
 
     /// Get the next event in the que
-    pub async fn next(&mut self) -> Option<domain::Event> {
-        self.receiver.recv().await
+    pub async fn next_event(&mut self) -> Option<domain::Event> {
+        self.event_receiver.recv().await
     }
 }
