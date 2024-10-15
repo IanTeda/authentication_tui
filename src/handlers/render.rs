@@ -1,9 +1,9 @@
 //-- ./src/handlers/render.rs
 
-#![allow(unused)] // For beginning only.
+// #![allow(unused)] // For beginning only.
 
 //! Application frame render events
-//! 
+//!
 //! The frequency of this event is set in config and triggered in CrosstermEventsHandler
 //! ---
 
@@ -11,12 +11,16 @@ use std::time;
 
 use tokio::sync::mpsc;
 
-use crate::{domain, state};
+use crate::{domain, prelude::*, state, ui, Terminal};
 
 /// Keep track of the render event cycles
 #[derive(Debug, Clone)]
 pub struct RenderEventHandler {
+    /// Application configuration
+    config: crate::config::Config,
+
     /// Action sender
+    #[allow(unused)]
     action_sender: mpsc::UnboundedSender<domain::Action>,
 
     /// Time since last frame
@@ -31,16 +35,35 @@ pub struct RenderEventHandler {
 
 impl RenderEventHandler {
     /// New TickEventHandler instance
-    pub fn init(action_sender: mpsc::UnboundedSender<domain::Action>) -> Self {
-        let last_frame_update= time::Instant::now();
+    pub fn init(
+        config: crate::config::Config,
+        action_sender: mpsc::UnboundedSender<domain::Action>,
+    ) -> Self {
+        let last_frame_update = time::Instant::now();
         let frame_count = 0;
         let frames_per_second = 0.0;
         Self {
+            config,
             action_sender,
             last_frame_update,
             frame_count,
             frames_per_second,
         }
+    }
+
+    /// What to do each render event cycle
+    pub fn handle_event(
+        &mut self,
+        state: &mut state::State,
+        terminal: &mut Terminal,
+    ) {
+        // Calculate the frame rate based on the last render event
+        self.calculate_frame_rate();
+
+        // Update the application state
+        state.app.frames_per_second = self.frames_per_second;
+
+        let _ = self.render_tui(state, terminal);
     }
 
     /// Update frame rate per second
@@ -67,12 +90,16 @@ impl RenderEventHandler {
         self.frames_per_second
     }
 
-    /// What to do each render event cycle
-    pub fn handle_event(&mut self, state: &mut state::State) {
-        // Calculate the frame rate based on the last render event
-        self.calculate_frame_rate();
+    /// Render the Terminal User Interface (TUI)
+    fn render_tui(
+        &mut self,
+        state: &mut crate::state::State,
+        terminal: &mut Terminal,
+    ) -> Result<()> {
+        terminal.draw(|frame| {
+            ui::layout::render(self.config.clone(), state, frame)
+        })?;
 
-        // Update the application state
-        state.app.frames_per_second = self.frames_per_second;
+        Ok(())
     }
 }

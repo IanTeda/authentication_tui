@@ -25,7 +25,7 @@ use crate::{domain, state, ui, Config};
 
 pub fn render(
     config: Config,
-    state: &mut state::State,
+    state: &state::State,
     area: layout::Rect,
     frame: &mut ratatui::Frame,
 ) {

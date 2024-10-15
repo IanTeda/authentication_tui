@@ -6,12 +6,12 @@
 //! ---
 
 use crate::handlers;
-pub(crate) use crate::{domain, prelude::*, state, ui, Terminal};
+pub(crate) use crate::{domain, prelude::*, state, Terminal};
 
 // #[derive(Debug)]
 pub struct App {
     /// Application state
-    state: state::State,
+    state: crate::state::State,
 
     /// Application configuration
     config: crate::config::Config,
@@ -39,7 +39,8 @@ impl App {
         let tick = handlers::TickEventHandler::init(actions.action_sender.clone());
 
         // // Construct a new render event handler
-        let render = handlers::RenderEventHandler::init(actions.action_sender.clone());
+        let render =
+            handlers::RenderEventHandler::init(config.clone(), actions.action_sender.clone());
 
         Ok(Self {
             state,
@@ -54,22 +55,26 @@ impl App {
     pub async fn run(&mut self) -> Result<()> {
         //-- 1. Build the terminal backend
         // Initiate a new backend terminal
-        let mut terminal =
-            Terminal::new(self.config.app.tick_rate, self.config.app.frame_rate)?;
+        let tick_rate = self.config.app.tick_rate;
+        let frame_rate = self.config.app.frame_rate;
+        let mut terminal = Terminal::new(tick_rate, frame_rate)?;
 
         // Enter terminal raw mode
         terminal.enter()?;
 
+        // Send application init action
+        self.actions.action_sender.send(domain::Action::Init)?;
+
         //-- 3. Run the main application loop
         while self.state.app.is_running {
-            // Render the TUI to the terminal
-            self.render(&mut terminal)?;
+            // // Render the TUI to the terminal
+            // self.render(&mut terminal)?;
 
             // Map crossterm events into actions
             self.actions.handle_events(&mut terminal.events).await?;
 
             // Update the app based on the action
-            self.update().await?;
+            self.update(&mut terminal).await?;
         }
 
         //-- 4. Restore terminal screen on exit
@@ -78,16 +83,19 @@ impl App {
         Ok(())
     }
 
-    /// Render the terminal user interface
-    fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-        terminal.draw(|frame| {
-            ui::layout::render(self.config.clone(), &mut self.state, frame)
-        })?;
+    // /// Render the terminal user interface
+    // fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
+    //     terminal.draw(|frame| {
+    //         ui::layout::render(self.config.clone(), &mut self.state, frame)
+    //     })?;
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    async fn update(&mut self) -> Result<()> {
+    async fn update(
+        &mut self,
+        terminal: &mut crate::Terminal,
+    ) -> Result<()> {
         while let Ok(action) = self.actions.next_action() {
             // Check
             if action != domain::Action::Tick && action != domain::Action::Render {
@@ -96,13 +104,14 @@ impl App {
 
             // Match action
             match action {
-                domain::Action::Init => {
-                    println!("Initiate app")
-                }
+                domain::Action::Init => {}
                 domain::Action::Tick => {
                     self.tick.handle_event(&mut self.state).await
                 }
-                domain::Action::Render => self.render.handle_event(&mut self.state),
+                domain::Action::Render => {
+                    // Render the TUI to the terminal
+                    self.render.handle_event(&mut self.state, terminal)
+                }
                 domain::Action::Quit => self.state.app.is_running = false,
                 _ => {}
             }
