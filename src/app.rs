@@ -39,8 +39,10 @@ impl App {
         let tick = handlers::TickEventHandler::init(actions.action_sender.clone());
 
         // // Construct a new render event handler
-        let render =
-            handlers::RenderEventHandler::init(config.clone(), actions.action_sender.clone());
+        let render = handlers::RenderEventHandler::init(
+            config.clone(),
+            actions.action_sender.clone(),
+        );
 
         Ok(Self {
             state,
@@ -59,16 +61,11 @@ impl App {
         let frame_rate = self.config.app.frame_rate;
         let mut terminal = Terminal::new(tick_rate, frame_rate)?;
 
-        // Enter terminal raw mode
+        //-- 2. Enter terminal raw mode
         terminal.enter()?;
-
-        // Send application init action
-        self.actions.action_sender.send(domain::Action::Init)?;
 
         //-- 3. Run the main application loop
         while self.state.app.is_running {
-            // // Render the TUI to the terminal
-            // self.render(&mut terminal)?;
 
             // Map crossterm events into actions
             self.actions.handle_events(&mut terminal.events).await?;
@@ -83,36 +80,36 @@ impl App {
         Ok(())
     }
 
-    // /// Render the terminal user interface
-    // fn render(&mut self, terminal: &mut Terminal) -> Result<()> {
-    //     terminal.draw(|frame| {
-    //         ui::layout::render(self.config.clone(), &mut self.state, frame)
-    //     })?;
-
-    //     Ok(())
-    // }
-
-    async fn update(
-        &mut self,
-        terminal: &mut crate::Terminal,
-    ) -> Result<()> {
+    /// Update the TUI application
+    async fn update(&mut self, terminal: &mut crate::Terminal) -> Result<()> {
+        // While we have a next action in the queue
         while let Ok(action) = self.actions.next_action() {
-            // Check
+            // Check action is working
             if action != domain::Action::Tick && action != domain::Action::Render {
                 tracing::debug!("{action:?}");
             }
 
             // Match action
             match action {
+                // Terminal initiation event action
                 domain::Action::Init => {}
+
+                // Application tick action
                 domain::Action::Tick => {
+                    // handle tick event
                     self.tick.handle_event(&mut self.state).await
                 }
+
+                // Application render action
                 domain::Action::Render => {
-                    // Render the TUI to the terminal
+                    // Handle render event
                     self.render.handle_event(&mut self.state, terminal)
                 }
+
+                // Quit tui application
                 domain::Action::Quit => self.state.app.is_running = false,
+
+                // Do nothing with all other actions
                 _ => {}
             }
         }

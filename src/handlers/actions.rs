@@ -51,9 +51,9 @@ impl ActionHandler {
         let action = match event {
             // crate::handlers::event::Event::Closed => todo!(),
             // handlers::Event::Error => Action::Error,
+            domain::Event::Init => domain::Action::Init,
             domain::Event::FocusGained => domain::Action::Resume,
             domain::Event::FocusLost => domain::Action::Resume,
-            // crate::handlers::event::Event::Init => todo!(),
             domain::Event::Key(key) => self.handle_key_event(key),
             // crate::handlers::event::Event::Mouse(_) => todo!(),
             domain::Event::Paste(s) => domain::Action::Paste(s),

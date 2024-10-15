@@ -1,5 +1,12 @@
-use super::{Toast, BackendStatus};
+//-- ./src/domain/action.rs
 
+//! The list of application action types
+//! ---
+
+use crate::domain::{Toast, BackendStatus};
+
+/// Application action types
+/// ---
 #[derive(Debug, Clone, PartialEq, strum::Display)]
 pub enum Action {
     /// Ping backend server status.

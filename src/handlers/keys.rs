@@ -6,7 +6,7 @@
 //! ---
 
 use crate::{domain, prelude::*};
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event as crossterm;
 use tokio::sync::mpsc;
 
 pub struct KeyEventHandler {
@@ -21,13 +21,13 @@ impl KeyEventHandler {
     }
 
     /// Handles the key events and updates the state of [`App`].
-    pub async fn handle_event(&self, key_event: KeyEvent) -> Result<()> {
+    pub async fn handle_event(&self, key_event: crossterm::KeyEvent) -> Result<()> {
         let action = match key_event.code {
-            // Exit application on `ESC` or `q`
-            KeyCode::Char('q') => domain::Action::Quit,
+            // Exit application on `q`
+            crossterm::KeyCode::Char('q') => domain::Action::Quit,
 
             // Escape from the tui application
-            KeyCode::Esc => domain::Action::ClearToast,
+            crossterm::KeyCode::Esc => domain::Action::ClearToast,
 
             // All other key events have nil action
             _ => domain::Action::Nil,
