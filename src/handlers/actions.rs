@@ -6,7 +6,6 @@
 //!
 //! ---
 
-use crossterm::event as crossterm;
 use tokio::sync::mpsc;
 
 use crate::{domain, handlers, prelude::*};
@@ -18,6 +17,8 @@ pub struct ActionHandler {
 
     /// Action receiver channel.
     pub action_receiver: mpsc::UnboundedReceiver<domain::Action>,
+
+    keys: crate::handlers::KeyEventHandler,
 }
 
 impl Default for ActionHandler {
@@ -26,9 +27,12 @@ impl Default for ActionHandler {
         // Initiate send receive event channels
         let (sender, receiver) = mpsc::unbounded_channel();
 
+        let keys = handlers::KeyEventHandler::default();
+
         Self {
             action_sender: sender,
             action_receiver: receiver,
+            keys
         }
     }
 }
@@ -54,7 +58,8 @@ impl ActionHandler {
             domain::Event::Init => domain::Action::Init,
             domain::Event::FocusGained => domain::Action::Resume,
             domain::Event::FocusLost => domain::Action::Resume,
-            domain::Event::Key(key) => self.handle_key_event(key),
+            // domain::Event::Key(key) => self.handle_key_event(key),
+            domain::Event::Key(key) => self.keys.handle_event(key),
             // crate::handlers::event::Event::Mouse(_) => todo!(),
             domain::Event::Paste(s) => domain::Action::Paste(s),
             domain::Event::Quit => domain::Action::Quit,
@@ -71,57 +76,18 @@ impl ActionHandler {
         Ok(())
     }
 
-    /// Match a key event to an Action
-    pub fn handle_key_event(
-        &mut self,
-        key_event: crossterm::KeyEvent,
-    ) -> domain::Action {
-        // Match the key event, returning the appropriate action type
-        match key_event.code {
-            // crossterm::event::KeyCode::Backspace => todo!(),
-            // crossterm::event::KeyCode::Enter => todo!(),
-            // crossterm::event::KeyCode::Left => todo!(),
-            // crossterm::event::KeyCode::Right => todo!(),
-            // crossterm::event::KeyCode::Up => todo!(),
-            // crossterm::event::KeyCode::Down => todo!(),
-            // crossterm::event::KeyCode::Home => todo!(),
-            // crossterm::event::KeyCode::End => todo!(),
-            // crossterm::event::KeyCode::PageUp => todo!(),
-            // crossterm::event::KeyCode::PageDown => todo!(),
-            // crossterm::event::KeyCode::Tab => todo!(),
-            // crossterm::event::KeyCode::BackTab => todo!(),
-            // crossterm::event::KeyCode::Delete => todo!(),
-            // crossterm::event::KeyCode::Insert => todo!(),
-            // crossterm::event::KeyCode::F(_) => todo!(),
-            // crossterm::event::KeyCode::Char(_) => todo!(),
-            // crossterm::event::KeyCode::Null => todo!(),
-            // crossterm::event::KeyCode::Esc => todo!(),
-            // crossterm::event::KeyCode::CapsLock => todo!(),
-            // crossterm::event::KeyCode::ScrollLock => todo!(),
-            // crossterm::event::KeyCode::NumLock => todo!(),
-            // crossterm::event::KeyCode::PrintScreen => todo!(),
-            // crossterm::event::KeyCode::Pause => todo!(),
-            // crossterm::event::KeyCode::Menu => todo!(),
-            // crossterm::event::KeyCode::KeypadBegin => todo!(),
-            // crossterm::event::KeyCode::Media(_) => todo!(),
-            // crossterm::event::KeyCode::Modifier(_) => todo!(),
-            crossterm::KeyCode::Char('q') => domain::Action::Quit,
-            _ => domain::Action::Nil,
-        }
-    }
+    // pub fn add_toast(&mut self, toast: domain::Toast) -> Result<()> {
+    //     // Clone the task sender channel
+    //     let action_sender = self.action_sender.clone();
 
-    pub fn add_toast(&mut self, toast: domain::Toast) -> Result<()> {
-        // Clone the task sender channel
-        let action_sender = self.action_sender.clone();
+    //     // Build the toast action
+    //     let action = domain::Action::Toast(toast);
 
-        // Build the toast action
-        let action = domain::Action::Toast(toast);
+    //     // Send action to the que
+    //     action_sender.send(action)?;
 
-        // Send action to the que
-        action_sender.send(action)?;
-
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     /// Get the next Action in the que.
     // TODO: Can I be an option return?

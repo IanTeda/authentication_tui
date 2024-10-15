@@ -54,18 +54,18 @@ impl TickEventHandler {
         // Update the application tick rate state
         state.app.ticks_per_second = self.ticks_per_second;
 
-        // // If the status has been checked previously (not None), check if status
-        // // check duration has elapsed
-        // if let Some(checked_on) = state.backend.status_checked_on {
-        //     if checked_on.elapsed() > STATUS_CHECK_DURATION {
-        //         state.backend.status = domain::BackendStatus::Offline;
-        //         state.backend.status_checked_on = Some(time::Instant::now());
-        //     }
-        // // Else check the backend authentication server status
-        // } else {
-        //     state.backend.status = domain::BackendStatus::Offline;
-        //     state.backend.status_checked_on = Some(time::Instant::now());
-        // }
+        // If the status has been checked previously (not None), check if status
+        // check duration has elapsed
+        if let Some(checked_on) = state.backend.status_checked_on {
+            if checked_on.elapsed() > STATUS_CHECK_DURATION {
+                state.backend.status = domain::BackendStatus::Offline;
+                state.backend.status_checked_on = Some(time::Instant::now());
+            }
+        // Else check the backend authentication server status
+        } else {
+            state.backend.status = domain::BackendStatus::Offline;
+            state.backend.status_checked_on = Some(time::Instant::now());
+        }
 
         // // If the status_checked_on option has a value process
         // if let Some(checked) = state.backend.status_checked_on {

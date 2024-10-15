@@ -109,6 +109,8 @@ impl App {
                 // Quit tui application
                 domain::Action::Quit => self.state.app.is_running = false,
 
+                domain::Action::Toast(t) => self.state.toast.queue.push_back(t),
+
                 // Do nothing with all other actions
                 _ => {}
             }

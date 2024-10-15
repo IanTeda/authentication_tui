@@ -5,38 +5,33 @@
 //! What to do with key events
 //! ---
 
-use crate::{domain, prelude::*};
+use crate::domain;
 use crossterm::event as crossterm;
-use tokio::sync::mpsc;
 
-pub struct KeyEventHandler {
-    /// Action sender
-    action_tx: mpsc::UnboundedSender<domain::Action>,
-}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct KeyEventHandler {}
 
 impl KeyEventHandler {
-    /// Construct a new key event handler
-    pub fn new(action_tx: mpsc::UnboundedSender<domain::Action>) -> Self {
-        Self { action_tx }
-    }
 
     /// Handles the key events and updates the state of [`App`].
-    pub async fn handle_event(&self, key_event: crossterm::KeyEvent) -> Result<()> {
-        let action = match key_event.code {
+    pub fn handle_event(&self, key_event: crossterm::KeyEvent) -> domain::Action {
+        match key_event.code {
             // Exit application on `q`
             crossterm::KeyCode::Char('q') => domain::Action::Quit,
+
+            // Test toast message
+            crossterm::KeyCode::Char('t') => {
+                let toast_message = "I am toasty".to_string();
+                let toast = domain::Toast::new(toast_message);
+                domain::Action::Toast(toast)
+            },
 
             // Escape from the tui application
             crossterm::KeyCode::Esc => domain::Action::ClearToast,
 
             // All other key events have nil action
             _ => domain::Action::Nil,
-        };
-
-        // Send action to the que
-        self.action_tx.send(action)?;
-
-        Ok(())
+        }
     }
 }
 
