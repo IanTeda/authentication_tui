@@ -109,7 +109,11 @@ impl App {
                 // Quit tui application
                 domain::Action::Quit => self.state.app.is_running = false,
 
+                // Add toast message to the queue
                 domain::Action::Toast(t) => self.state.toast.queue.push_back(t),
+
+                // Clear (remove) current toast message
+                domain::Action::ClearToast => self.state.toast.current = None,
 
                 // Do nothing with all other actions
                 _ => {}
