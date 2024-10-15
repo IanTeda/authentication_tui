@@ -5,7 +5,7 @@
 //! The TUI application module
 //! ---
 
-use crate::handlers;
+use crate::{client, handlers, services};
 pub(crate) use crate::{domain, prelude::*, state, Terminal};
 
 // #[derive(Debug)]
@@ -66,7 +66,6 @@ impl App {
 
         //-- 3. Run the main application loop
         while self.state.app.is_running {
-
             // Map crossterm events into actions
             self.actions.handle_events(&mut terminal.events).await?;
 
@@ -115,11 +114,61 @@ impl App {
                 // Clear (remove) current toast message
                 domain::Action::ClearToast => self.state.toast.current = None,
 
+                // Check authentication backend server online status
+                domain::Action::BackendStatusUpdate => {
+                    self.update_backend_status().await;
+                    let toast_message =
+                        format!("Backend server is: {:?}", self.state.backend.status);
+                    let toast = domain::Toast::new(toast_message);
+                    self.state.toast.queue.push_back(toast);
+                }
+
                 // Do nothing with all other actions
                 _ => {}
             }
         }
 
         Ok(())
+    }
+
+    async fn update_backend_status(&mut self) {
+        // Assign socket address for communicating with the backend
+        let rpc_server_address = self.config.backend.address();
+
+        // Build the rpc client, setting Offline if error returned
+        let rpc_client: Option<client::RpcClient> =
+            match client::RpcClient::new(rpc_server_address).await {
+                // Match call returned an ok result
+                Ok(rpc_client) => Some(rpc_client),
+
+                // Match call returned an error result
+                Err(error) => {
+                    // Set state to Offline on error
+                    self.state.backend.status = domain::BackendStatus::Offline;
+
+                    // Send error to tracing log
+                    tracing::error!("Error connecting to backend server: {}", error);
+
+                    // Return None
+                    None
+                }
+            };
+
+        // If the rpc_client option has a value process
+        if let Some(rpc_client) = rpc_client {
+            // Construct a utilities service
+            let mut utilities_service = services::UtilitiesService::new(rpc_client);
+
+            // Check if backend is online
+            if utilities_service.is_online().await {
+                // Set backend status to Online
+                self.state.backend.status = domain::BackendStatus::Online;
+
+            // Else false
+            } else {
+                // Set state to Offline
+                self.state.backend.status = domain::BackendStatus::Offline;
+            }
+        }
     }
 }
