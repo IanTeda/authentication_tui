@@ -5,6 +5,8 @@
 //! Application state module
 //! ---
 
+use crate::domain;
+
 /// The applications current state
 #[derive(Debug, Clone, PartialEq)]
 pub struct AppState {
@@ -16,6 +18,8 @@ pub struct AppState {
 
     /// Application frame rate per second
     pub frames_per_second: f64,
+
+    pub mode: domain::AppMode
 }
 
 impl Default for AppState {
@@ -37,10 +41,13 @@ impl AppState {
         // Set the new application frame rate (frames per second) to 0.0
         let frames_per_second = 0.0;
 
+        let mode = domain::AppMode::default();
+
         Self {
             is_running,
             ticks_per_second,
             frames_per_second,
+            mode,
         }
     }
 }

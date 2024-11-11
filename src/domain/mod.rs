@@ -5,6 +5,9 @@
 mod action;
 pub use action::Action;
 
+mod app_modes;
+pub use app_modes::AppMode;
+
 mod backend_status;
 pub use backend_status::BackendStatus;
 

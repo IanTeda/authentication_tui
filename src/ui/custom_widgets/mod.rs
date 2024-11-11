@@ -19,3 +19,6 @@ pub use toast::ToastWidget;
 
 mod status;
 pub use status::StatusWidget;
+
+mod status_app_mode;
+pub use status_app_mode::StatusAppModeWidget;

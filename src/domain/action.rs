@@ -3,15 +3,16 @@
 //! The list of application action types
 //! ---
 
-use crate::domain::{Toast, BackendStatus};
+use crate::domain;
 
 /// Application action types
 /// ---
 #[derive(Debug, Clone, PartialEq, strum::Display)]
 pub enum Action {
+    AppMode(domain::AppMode),
     /// Ping backend server status.
     BackendStatusUpdate,
-    BackendStatus(BackendStatus),
+    BackendStatus(domain::BackendStatus),
     ClearScreen,
     Error(String),
     Help,
@@ -25,5 +26,5 @@ pub enum Action {
     Tick,
     Init,
     ClearToast,
-    Toast(Toast),
+    Toast(domain::Toast),
 }

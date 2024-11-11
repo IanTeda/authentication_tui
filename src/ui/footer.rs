@@ -38,10 +38,14 @@ pub fn render(
         (split[0], split[1])
     };
 
-    frame.render_widget(
-        widgets::Paragraph::new("Footer Left").block(widgets::Block::new()),
-        footer_left,
-    );
+    // frame.render_widget(
+    //     widgets::Paragraph::new("Footer Left").block(widgets::Block::new()),
+    //     footer_left,
+    // );
+
+    let status_app_mode_widget =
+        ui::custom_widgets::StatusAppModeWidget::init(state.app.mode.clone());
+    frame.render_widget(status_app_mode_widget, footer_left);
 
     let status_widget =
         ui::custom_widgets::StatusWidget::init(state.backend.status.clone());

@@ -67,7 +67,9 @@ impl App {
         //-- 3. Run the main application loop
         while self.state.app.is_running {
             // Map crossterm events into actions
-            self.actions.handle_events(&mut terminal.events).await?;
+            self.actions
+                .handle_events(self.state.app.mode.clone(), &mut terminal.events)
+                .await?;
 
             // Update the app based on the action
             self.update(&mut terminal).await?;
@@ -117,10 +119,16 @@ impl App {
                 // Check authentication backend server online status
                 domain::Action::BackendStatusUpdate => {
                     self.update_backend_status().await;
-                    let toast_message =
-                        format!("Backend server is: {:?}", self.state.backend.status);
+                    let toast_message = format!(
+                        "Backend server is: {:?}",
+                        self.state.backend.status
+                    );
                     let toast = domain::Toast::new(toast_message);
                     self.state.toast.queue.push_back(toast);
+                }
+
+                domain::Action::AppMode(m) => {
+                    self.state.app.mode = m;
                 }
 
                 // Do nothing with all other actions

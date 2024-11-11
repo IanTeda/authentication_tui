@@ -10,7 +10,7 @@ use tokio::sync::mpsc;
 
 use crate::{domain, handlers, prelude::*};
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct ActionHandler {
     /// Action sender channel.
     pub action_sender: mpsc::UnboundedSender<domain::Action>,
@@ -18,6 +18,7 @@ pub struct ActionHandler {
     /// Action receiver channel.
     pub action_receiver: mpsc::UnboundedReceiver<domain::Action>,
 
+    /// Map key events to actions.
     keys: crate::handlers::KeyEventHandler,
 }
 
@@ -32,7 +33,7 @@ impl Default for ActionHandler {
         Self {
             action_sender: sender,
             action_receiver: receiver,
-            keys
+            keys,
         }
     }
 }
@@ -41,6 +42,7 @@ impl ActionHandler {
     /// Transform an application (terminal) event into an Action an then add to the que.
     pub async fn handle_events(
         &mut self,
+        app_mode: domain::AppMode,
         terminal_events: &mut handlers::CrosstermEventsHandler,
     ) -> Result<()> {
         // Clone the task sender channel
@@ -58,8 +60,7 @@ impl ActionHandler {
             domain::Event::Init => domain::Action::Init,
             domain::Event::FocusGained => domain::Action::Resume,
             domain::Event::FocusLost => domain::Action::Resume,
-            // domain::Event::Key(key) => self.handle_key_event(key),
-            domain::Event::Key(key) => self.keys.handle_event(key),
+            domain::Event::Key(key) => self.keys.handle_event(app_mode, key),
             // crate::handlers::event::Event::Mouse(_) => todo!(),
             domain::Event::Paste(s) => domain::Action::Paste(s),
             domain::Event::Quit => domain::Action::Quit,

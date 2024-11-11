@@ -16,6 +16,7 @@ impl crate::App {
     /// A connection error will set the the status to Offline
     /// 
     /// A Ok response will set the status to Online
+    //TODO: Add connected status logic
     pub async fn update_backend_status(&mut self) {
         // Set the status checked on time instance to now
         self.state.backend.status_checked_on = Some(time::Instant::now());
